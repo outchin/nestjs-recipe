@@ -1,0 +1,30 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/inventory/orders"
+method: POST
+headers:
+  Content-Type: application/json
+  X-User-Id: "{{aliceId}}"
+body:
+  type: json
+  content: |-
+    {
+      "productId": {{sneakerId}},
+      "quantity": 1,
+      "idempotencyKey": "{{aliceKey}}"
+    }
+scripts:
+  - type: beforeRequest
+    code: |-
+      // fresh key per run; step 3 replays the same one
+      pm.collectionVariables.set('aliceKey', pm.variables.replaceIn('{{$guid}}'));
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      pm.test('status 201', () => pm.response.to.have.status(201));
+      const o = pm.response.json();
+      pm.test('order confirmed for Alice', () => { pm.expect(o.userId).to.eql(Number(pm.collectionVariables.get('aliceId'))); pm.expect(o.status).to.eql('CONFIRMED'); });
+      pm.test('one item, price snapshot', () => { pm.expect(o.items).to.have.length(1); pm.expect(o.items[0].unitPrice).to.eql('199.00'); });
+      pm.collectionVariables.set('aliceOrderId', o.id);
+    language: text/javascript
+order: 2000

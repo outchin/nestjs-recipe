@@ -1,0 +1,12 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/inventory/products"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status 200', () => pm.response.to.have.status(200));
+      const s = pm.response.json().find(p => p.sku === 'SNEAKER-LTD-001');
+      pm.test('stock is 0, version bumped', () => { pm.expect(s.stock).to.eql(0); pm.expect(s.version).to.be.above(1); });
+    language: text/javascript
+order: 5000

@@ -1,0 +1,17 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/inventory/products"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status 200', () => pm.response.to.have.status(200));
+      const products = pm.response.json();
+      const sneaker = products.find(p => p.sku === 'SNEAKER-LTD-001');
+      const tshirt  = products.find(p => p.sku === 'TSHIRT-BASIC-001');
+      pm.test('seed products exist', () => { pm.expect(sneaker).to.be.ok; pm.expect(tshirt).to.be.ok; });
+      pm.collectionVariables.set('sneakerId', sneaker.id);
+      pm.collectionVariables.set('tshirtId', tshirt.id);
+      console.log('sneaker stock =', sneaker.stock, '| tshirt stock =', tshirt.stock);
+    language: text/javascript
+order: 1000

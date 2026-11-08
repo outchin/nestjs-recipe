@@ -1,0 +1,115 @@
+/* One small stylesheet for the whole lab UI. Neutral, dev-tool look; light + dark. */
+:root {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #59636e;
+  --accent: #0969da;
+  --accent-text: #ffffff;
+  --ok: #1a7f37;      --ok-bg: #dafbe1;
+  --warn: #9a6700;    --warn-bg: #fff8c5;
+  --err: #cf222e;     --err-bg: #ffebe9;
+  --radius: 6px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8d96a0;
+    --accent: #4493f8;
+    --accent-text: #0d1117;
+    --ok: #3fb950;      --ok-bg: #12261e;
+    --warn: #d29922;    --warn-bg: #272115;
+    --err: #f85149;     --err-bg: #2d1517;
+  }
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 var(--sans); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, .mono { font-family: var(--mono); font-size: 0.875em; }
+code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; }
+h1, h2, h3 { line-height: 1.25; margin: 1.5em 0 0.5em; }
+h1 { font-size: 1.75rem; margin-top: 0; }
+h2 { font-size: 1.15rem; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; }
+.muted { color: var(--muted); }
+.lead { color: var(--muted); margin-top: 0; max-width: 70ch; }
+
+/* layout */
+.topbar { border-bottom: 1px solid var(--border); background: var(--surface); }
+.topbar-inner, .container { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+.topbar-inner { display: flex; align-items: center; gap: 16px; height: 52px; }
+.brand { font-family: var(--mono); font-weight: 600; color: var(--text); }
+.brand::before { content: '~/'; color: var(--muted); }
+.crumb { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+.container { padding-top: 32px; padding-bottom: 64px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.spacer { flex: 1; }
+
+/* blocks */
+.card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; background: var(--bg); }
+.notes { padding-left: 1.2em; max-width: 75ch; }
+.notes li { margin: 4px 0; }
+pre.output { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; font: 13px/1.5 var(--mono); white-space: pre-wrap; overflow-x: auto; }
+.empty { border: 1px dashed var(--border); border-radius: var(--radius); padding: 16px; color: var(--muted); }
+.theory { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.theory .notes { flex: 1; min-width: 260px; margin: 0; }
+
+/* reference images: small thumbnail, click → full screen */
+.thumbs { display: flex; gap: 12px; flex-wrap: wrap; }
+.thumb { margin: 0; width: 160px; }
+.thumb button { display: block; padding: 0; border: 1px solid var(--border); background: none; cursor: zoom-in; overflow: hidden; }
+.thumb button:hover { border-color: var(--accent); }
+.thumb img { display: block; width: 100%; height: 200px; object-fit: cover; object-position: top; }
+.thumb figcaption { font: 11px var(--mono); color: var(--muted); margin-top: 4px; overflow-wrap: anywhere; }
+.lightbox { position: fixed; inset: 0; z-index: 10; background: rgb(0 0 0 / 0.85); display: flex;
+  align-items: center; justify-content: center; padding: 24px; cursor: zoom-out; }
+.lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--radius); }
+.lightbox-hint { position: fixed; bottom: 12px; left: 0; right: 0; text-align: center; font: 12px var(--mono); color: #ccc; }
+
+/* lab list */
+.lab-list { list-style: none; padding: 0; margin: 0; }
+.lab-list li { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; }
+.lab-list a { font-weight: 600; }
+.lab-list .path { display: block; font: 12px var(--mono); color: var(--muted); }
+
+/* controls */
+button { font: inherit; font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 4px 12px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--muted); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+button.danger { color: var(--err); }
+button.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); font-weight: 600; }
+
+/* table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 600; background: var(--surface); color: var(--muted); font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.04em; }
+th, td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+td.num { font-family: var(--mono); }
+td.actions { white-space: nowrap; text-align: right; }
+.zero { color: var(--err); font-weight: 600; }
+
+/* status / log */
+.badge { font: 600 12px var(--mono); padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; }
+.tone-ok { color: var(--ok); }    .tone-ok.entry { background: var(--ok-bg); }
+.tone-replay { color: var(--warn); } .tone-replay.entry { background: var(--warn-bg); }
+.tone-error { color: var(--err); } .tone-error.entry { background: var(--err-bg); }
+.entry { border-left: 3px solid currentColor; border-radius: 4px; padding: 8px 12px; margin-bottom: 8px; font-size: 14px; }
+.entry .meta { font: 12px var(--mono); color: var(--muted); }
+.entry .text { color: var(--text); }
+.alert { border: 1px solid var(--err); background: var(--err-bg); color: var(--err); border-radius: var(--radius); padding: 8px 12px; }
+.order { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; margin-bottom: 8px; font-size: 14px; }

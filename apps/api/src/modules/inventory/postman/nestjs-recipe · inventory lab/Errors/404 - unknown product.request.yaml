@@ -1,0 +1,19 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/inventory/orders"
+method: POST
+headers:
+  Content-Type: application/json
+  X-User-Id: "{{aliceId}}"
+body:
+  type: json
+  content: |-
+    {
+      "productId": 999999,
+      "quantity": 1
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('status 404', () => pm.response.to.have.status(404));
+    language: text/javascript
+order: 3000

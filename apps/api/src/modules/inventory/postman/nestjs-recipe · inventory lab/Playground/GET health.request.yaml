@@ -1,0 +1,11 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/health"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status 200', () => pm.response.to.have.status(200));
+      pm.test('on mysql and DB up', () => { const h = pm.response.json(); pm.expect(h.dbDriver).to.eql('mysql'); pm.expect(h.db).to.eql('up'); });
+    language: text/javascript
+order: 4000

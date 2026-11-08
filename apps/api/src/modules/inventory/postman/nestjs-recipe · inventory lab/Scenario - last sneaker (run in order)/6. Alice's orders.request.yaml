@@ -1,0 +1,13 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/inventory/orders"
+method: GET
+headers:
+  X-User-Id: "{{aliceId}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status 200', () => pm.response.to.have.status(200));
+      pm.test('contains the sneaker order', () => pm.expect(pm.response.json().map(o => o.id)).to.include(Number(pm.collectionVariables.get('aliceOrderId'))));
+    language: text/javascript
+order: 6000

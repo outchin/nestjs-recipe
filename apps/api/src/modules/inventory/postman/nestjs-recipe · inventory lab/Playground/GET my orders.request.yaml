@@ -1,0 +1,7 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/inventory/orders"
+method: GET
+headers:
+  X-User-Id: "{{aliceId}}"
+order: 3000

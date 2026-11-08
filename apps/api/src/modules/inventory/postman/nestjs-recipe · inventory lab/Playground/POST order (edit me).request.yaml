@@ -1,0 +1,15 @@
+$kind: http-request
+description: Free-form. Change X-User-Id (1 Alice, 2 Bob), productId, quantity, add idempotencyKey.
+url: "{{baseUrl}}/inventory/orders"
+method: POST
+headers:
+  Content-Type: application/json
+  X-User-Id: "{{aliceId}}"
+body:
+  type: json
+  content: |-
+    {
+      "productId": {{tshirtId}},
+      "quantity": 1
+    }
+order: 2000

@@ -1,0 +1,16 @@
+$kind: collection
+description: |-
+  Step 1: one user creates an order.
+
+  The **Scenario** folder starts with *0. Reset demo data*, so it can be re-run any number of times.
+  Run with Collection Runner.
+
+  Caller identity = `X-User-Id` header (1 Alice, 2 Bob) until the auth step.
+variables:
+  baseUrl: http://localhost:3000/api
+  aliceId: "1"
+  bobId: "2"
+  sneakerId: "1"
+  tshirtId: "2"
+  aliceKey: ""
+  aliceOrderId: ""

@@ -1,0 +1,22 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/inventory/orders"
+method: POST
+headers:
+  Content-Type: application/json
+  X-User-Id: "{{bobId}}"
+body:
+  type: json
+  content: |-
+    {
+      "productId": {{sneakerId}},
+      "quantity": 1
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('status 409', () => pm.response.to.have.status(409));
+      const b = pm.response.json();
+      pm.test('available is 0', () => { pm.expect(b.message).to.eql('Insufficient stock'); pm.expect(b.available).to.eql(0); });
+    language: text/javascript
+order: 4000

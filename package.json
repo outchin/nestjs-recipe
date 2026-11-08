@@ -1,0 +1,23 @@
+{
+  "name": "nestjs-recipe",
+  "private": true,
+  "version": "0.1.0",
+  "description": "NestJS learning lab: concepts, common errors, interview questions, system design \u2014 with a tiny frontend to poke the API.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "build": "npm run build --workspaces",
+    "test": "npm run test -w apps/api",
+    "test:e2e": "npm run test:e2e -w apps/api",
+    "db:up": "./scripts/db.sh up",
+    "db:down": "./scripts/db.sh down",
+    "db:reset": "./scripts/db.sh reset",
+    "db:shell": "./scripts/db.sh shell",
+    "db:logs": "./scripts/db.sh logs",
+    "db:status": "./scripts/db.sh status",
+    "db:seed:inventory": "docker exec -i nestjs-recipe-mysql mysql -ulab -plab lab < apps/api/src/modules/inventory/sql/seed.sql"
+  }
+}
