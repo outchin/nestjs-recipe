@@ -1,9 +1,9 @@
 {
   "meta": {
     "scenario": "last-sneaker",
-    "recordedAt": "2026-11-20T10:15:41.246Z",
-    "commit": "5421634",
-    "dirty": true,
+    "recordedAt": "2026-11-20T13:20:29.737Z",
+    "commit": "39127c1",
+    "dirty": false,
     "node": "v22.23.1",
     "dbDriver": "mysql",
     "platform": "darwin arm64",
@@ -28,36 +28,36 @@
           "body": {
             "productId": 1,
             "quantity": 1,
-            "idempotencyKey": "sneaker-ltd-001-A-4ea76d6d"
+            "idempotencyKey": "sneaker-ltd-001-A-f5f6f073"
           },
           "status": 201,
           "response": {
-            "id": 73,
+            "id": 82,
             "userId": 1,
             "status": "CONFIRMED",
             "totalAmount": "199.00",
-            "idempotencyKey": "sneaker-ltd-001-A-4ea76d6d",
+            "idempotencyKey": "sneaker-ltd-001-A-f5f6f073",
             "items": [
               {
-                "id": 62,
-                "orderId": 73,
+                "id": 69,
+                "orderId": 82,
                 "productId": 1,
                 "quantity": 1,
                 "unitPrice": "199.00"
               }
             ],
-            "createdAt": "2026-11-20T10:15:40.840Z",
-            "updatedAt": "2026-11-20T10:15:40.840Z"
+            "createdAt": "2026-11-20T13:20:29.766Z",
+            "updatedAt": "2026-11-20T13:20:29.766Z"
           },
-          "clientMs": 71.24,
-          "startedAt": 22.85,
+          "clientMs": 49.13,
+          "startedAt": 19.87,
           "trace": {
-            "totalMs": 62.47,
+            "totalMs": 38.69,
             "spans": [
               {
                 "name": "db.transaction",
-                "at": 0.94,
-                "ms": 61.47,
+                "at": 10.13,
+                "ms": 28.31,
                 "depth": 0,
                 "detail": {
                   "committed": true,
@@ -66,8 +66,8 @@
               },
               {
                 "name": "db.user.find",
-                "at": 3.35,
-                "ms": 3.95,
+                "at": 11.19,
+                "ms": 2.19,
                 "depth": 1,
                 "detail": {
                   "found": true
@@ -75,8 +75,8 @@
               },
               {
                 "name": "db.idempotency.lookup",
-                "at": 7.32,
-                "ms": 16.26,
+                "at": 13.39,
+                "ms": 2.76,
                 "depth": 1,
                 "detail": {
                   "hit": false,
@@ -85,8 +85,8 @@
               },
               {
                 "name": "db.product.read",
-                "at": 23.58,
-                "ms": 3.31,
+                "at": 16.15,
+                "ms": 0.83,
                 "depth": 1,
                 "detail": {
                   "productId": 1,
@@ -96,7 +96,7 @@
               },
               {
                 "name": "app.stock.check",
-                "at": 26.9,
+                "at": 16.98,
                 "ms": 0,
                 "depth": 1,
                 "detail": {
@@ -107,8 +107,8 @@
               },
               {
                 "name": "db.product.update",
-                "at": 26.9,
-                "ms": 15.14,
+                "at": 16.99,
+                "ms": 12.7,
                 "depth": 1,
                 "detail": {
                   "stock": 0
@@ -116,17 +116,17 @@
               },
               {
                 "name": "db.order.insert",
-                "at": 42.05,
-                "ms": 9.11,
+                "at": 29.69,
+                "ms": 3.75,
                 "depth": 1,
                 "detail": {
-                  "orderId": 73
+                  "orderId": 82
                 }
               },
               {
                 "name": "db.orderItem.insert",
-                "at": 51.17,
-                "ms": 4.39,
+                "at": 33.44,
+                "ms": 2.09,
                 "depth": 1
               }
             ]
@@ -140,10 +140,10 @@
         },
         "orders": [
           {
-            "id": 73,
+            "id": 82,
             "userId": 1,
             "sku": "SNEAKER-LTD-001",
-            "key": "sneaker-ltd-001-A-4ea76d6d"
+            "key": "sneaker-ltd-001-A-f5f6f073"
           }
         ]
       }
@@ -159,36 +159,36 @@
           "body": {
             "productId": 1,
             "quantity": 1,
-            "idempotencyKey": "sneaker-ltd-001-A-4ea76d6d"
+            "idempotencyKey": "sneaker-ltd-001-A-f5f6f073"
           },
           "status": 200,
           "response": {
-            "id": 73,
+            "id": 82,
             "userId": 1,
             "status": "CONFIRMED",
             "totalAmount": "199.00",
-            "idempotencyKey": "sneaker-ltd-001-A-4ea76d6d",
+            "idempotencyKey": "sneaker-ltd-001-A-f5f6f073",
             "items": [
               {
-                "id": 62,
-                "orderId": 73,
+                "id": 69,
+                "orderId": 82,
                 "productId": 1,
                 "quantity": 1,
                 "unitPrice": "199.00"
               }
             ],
-            "createdAt": "2026-11-20T10:15:40.840Z",
-            "updatedAt": "2026-11-20T10:15:40.840Z"
+            "createdAt": "2026-11-20T13:20:29.766Z",
+            "updatedAt": "2026-11-20T13:20:29.766Z"
           },
-          "clientMs": 22.29,
-          "startedAt": 143.09,
+          "clientMs": 8.42,
+          "startedAt": 84.62,
           "trace": {
-            "totalMs": 16.63,
+            "totalMs": 5.69,
             "spans": [
               {
                 "name": "db.transaction",
-                "at": 0.66,
-                "ms": 15.9,
+                "at": 0.16,
+                "ms": 5.5,
                 "depth": 0,
                 "detail": {
                   "committed": true,
@@ -197,8 +197,8 @@
               },
               {
                 "name": "db.user.find",
-                "at": 3,
-                "ms": 3.06,
+                "at": 1.04,
+                "ms": 0.84,
                 "depth": 1,
                 "detail": {
                   "found": true
@@ -206,12 +206,12 @@
               },
               {
                 "name": "db.idempotency.lookup",
-                "at": 6.07,
-                "ms": 8.76,
+                "at": 1.89,
+                "ms": 3.19,
                 "depth": 1,
                 "detail": {
                   "hit": true,
-                  "orderId": 73
+                  "orderId": 82
                 }
               }
             ]
@@ -225,10 +225,10 @@
         },
         "orders": [
           {
-            "id": 73,
+            "id": 82,
             "userId": 1,
             "sku": "SNEAKER-LTD-001",
-            "key": "sneaker-ltd-001-A-4ea76d6d"
+            "key": "sneaker-ltd-001-A-f5f6f073"
           }
         ]
       }
@@ -244,7 +244,7 @@
           "body": {
             "productId": 1,
             "quantity": 1,
-            "idempotencyKey": "sneaker-ltd-001-B-aa25962c"
+            "idempotencyKey": "sneaker-ltd-001-B-dff6aeb2"
           },
           "status": 409,
           "response": {
@@ -253,22 +253,22 @@
             "requested": 1,
             "available": 0
           },
-          "clientMs": 57.47,
-          "startedAt": 189.2,
+          "clientMs": 5.5,
+          "startedAt": 105.78,
           "trace": {
-            "totalMs": 44.49,
+            "totalMs": 4.17,
             "spans": [
               {
                 "name": "db.transaction",
-                "at": 3.22,
-                "ms": 41.23,
+                "at": 0.14,
+                "ms": 4,
                 "depth": 0,
                 "error": "ConflictException"
               },
               {
                 "name": "db.user.find",
-                "at": 9.12,
-                "ms": 6.2,
+                "at": 0.86,
+                "ms": 0.74,
                 "depth": 1,
                 "detail": {
                   "found": true
@@ -276,8 +276,8 @@
               },
               {
                 "name": "db.idempotency.lookup",
-                "at": 15.34,
-                "ms": 13.51,
+                "at": 1.6,
+                "ms": 0.8,
                 "depth": 1,
                 "detail": {
                   "hit": false,
@@ -286,8 +286,8 @@
               },
               {
                 "name": "db.product.read",
-                "at": 28.86,
-                "ms": 9.65,
+                "at": 2.41,
+                "ms": 0.7,
                 "depth": 1,
                 "detail": {
                   "productId": 1,
@@ -297,7 +297,7 @@
               },
               {
                 "name": "app.stock.check",
-                "at": 38.52,
+                "at": 3.11,
                 "ms": 0,
                 "depth": 1,
                 "detail": {
@@ -317,10 +317,10 @@
         },
         "orders": [
           {
-            "id": 73,
+            "id": 82,
             "userId": 1,
             "sku": "SNEAKER-LTD-001",
-            "key": "sneaker-ltd-001-A-4ea76d6d"
+            "key": "sneaker-ltd-001-A-f5f6f073"
           }
         ]
       }
@@ -336,36 +336,36 @@
           "body": {
             "productId": 2,
             "quantity": 1,
-            "idempotencyKey": "tshirt-basic-001-C-2f4a7caa"
+            "idempotencyKey": "tshirt-basic-001-C-9bb2e26e"
           },
           "status": 201,
           "response": {
-            "id": 74,
+            "id": 83,
             "userId": 1,
             "status": "CONFIRMED",
             "totalAmount": "15.00",
-            "idempotencyKey": "tshirt-basic-001-C-2f4a7caa",
+            "idempotencyKey": "tshirt-basic-001-C-9bb2e26e",
             "items": [
               {
-                "id": 63,
-                "orderId": 74,
+                "id": 70,
+                "orderId": 83,
                 "productId": 2,
                 "quantity": 1,
                 "unitPrice": "15.00"
               }
             ],
-            "createdAt": "2026-11-20T10:15:41.237Z",
-            "updatedAt": "2026-11-20T10:15:41.237Z"
+            "createdAt": "2026-11-20T13:20:29.843Z",
+            "updatedAt": "2026-11-20T13:20:29.843Z"
           },
-          "clientMs": 114.19,
-          "startedAt": 384.71,
+          "clientMs": 24.15,
+          "startedAt": 124.38,
           "trace": {
-            "totalMs": 103.77,
+            "totalMs": 21.8,
             "spans": [
               {
                 "name": "db.transaction",
-                "at": 0.39,
-                "ms": 103.31,
+                "at": 0.15,
+                "ms": 21.62,
                 "depth": 0,
                 "detail": {
                   "committed": true,
@@ -374,8 +374,8 @@
               },
               {
                 "name": "db.user.find",
-                "at": 12.79,
-                "ms": 20.59,
+                "at": 2.8,
+                "ms": 0.95,
                 "depth": 1,
                 "detail": {
                   "found": true
@@ -383,8 +383,8 @@
               },
               {
                 "name": "db.idempotency.lookup",
-                "at": 33.41,
-                "ms": 10.77,
+                "at": 3.75,
+                "ms": 0.86,
                 "depth": 1,
                 "detail": {
                   "hit": false,
@@ -393,8 +393,8 @@
               },
               {
                 "name": "db.product.read",
-                "at": 44.25,
-                "ms": 8.61,
+                "at": 4.61,
+                "ms": 1.73,
                 "depth": 1,
                 "detail": {
                   "productId": 2,
@@ -404,7 +404,7 @@
               },
               {
                 "name": "app.stock.check",
-                "at": 52.87,
+                "at": 6.34,
                 "ms": 0,
                 "depth": 1,
                 "detail": {
@@ -415,8 +415,8 @@
               },
               {
                 "name": "db.product.update",
-                "at": 52.88,
-                "ms": 18.24,
+                "at": 6.34,
+                "ms": 3.63,
                 "depth": 1,
                 "detail": {
                   "stock": 49
@@ -424,17 +424,17 @@
               },
               {
                 "name": "db.order.insert",
-                "at": 71.13,
-                "ms": 14.31,
+                "at": 9.97,
+                "ms": 4.88,
                 "depth": 1,
                 "detail": {
-                  "orderId": 74
+                  "orderId": 83
                 }
               },
               {
                 "name": "db.orderItem.insert",
-                "at": 85.45,
-                "ms": 9.41,
+                "at": 14.85,
+                "ms": 1.76,
                 "depth": 1
               }
             ]
@@ -448,29 +448,29 @@
           "body": {
             "productId": 2,
             "quantity": 1,
-            "idempotencyKey": "tshirt-basic-001-C-2f4a7caa"
+            "idempotencyKey": "tshirt-basic-001-C-9bb2e26e"
           },
           "status": 500,
           "response": {
             "statusCode": 500,
             "message": "Internal server error"
           },
-          "clientMs": 134.08,
-          "startedAt": 385.51,
+          "clientMs": 49.6,
+          "startedAt": 124.58,
           "trace": {
-            "totalMs": 122.64,
+            "totalMs": 46.97,
             "spans": [
               {
                 "name": "db.transaction",
-                "at": 0.44,
-                "ms": 122.15,
+                "at": 0.09,
+                "ms": 46.86,
                 "depth": 0,
                 "error": "QueryFailedError"
               },
               {
                 "name": "db.user.find",
-                "at": 32.64,
-                "ms": 19.35,
+                "at": 3.72,
+                "ms": 4.04,
                 "depth": 1,
                 "detail": {
                   "found": true
@@ -478,8 +478,8 @@
               },
               {
                 "name": "db.idempotency.lookup",
-                "at": 52,
-                "ms": 6.33,
+                "at": 7.76,
+                "ms": 6.08,
                 "depth": 1,
                 "detail": {
                   "hit": false,
@@ -488,8 +488,8 @@
               },
               {
                 "name": "db.product.read",
-                "at": 58.34,
-                "ms": 7.43,
+                "at": 13.84,
+                "ms": 2.1,
                 "depth": 1,
                 "detail": {
                   "productId": 2,
@@ -499,7 +499,7 @@
               },
               {
                 "name": "app.stock.check",
-                "at": 65.78,
+                "at": 15.94,
                 "ms": 0,
                 "depth": 1,
                 "detail": {
@@ -510,8 +510,8 @@
               },
               {
                 "name": "db.product.update",
-                "at": 65.78,
-                "ms": 39.68,
+                "at": 15.94,
+                "ms": 6.53,
                 "depth": 1,
                 "detail": {
                   "stock": 49
@@ -519,8 +519,8 @@
               },
               {
                 "name": "db.order.insert",
-                "at": 105.47,
-                "ms": 7.63,
+                "at": 22.47,
+                "ms": 23.13,
                 "depth": 1,
                 "error": "QueryFailedError"
               }
@@ -535,16 +535,16 @@
         },
         "orders": [
           {
-            "id": 73,
+            "id": 82,
             "userId": 1,
             "sku": "SNEAKER-LTD-001",
-            "key": "sneaker-ltd-001-A-4ea76d6d"
+            "key": "sneaker-ltd-001-A-f5f6f073"
           },
           {
-            "id": 74,
+            "id": 83,
             "userId": 1,
             "sku": "TSHIRT-BASIC-001",
-            "key": "tshirt-basic-001-C-2f4a7caa"
+            "key": "tshirt-basic-001-C-9bb2e26e"
           }
         ]
       }
