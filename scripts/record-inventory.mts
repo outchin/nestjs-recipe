@@ -50,7 +50,8 @@ const recording: Recording = {
     scenario: scenario.id,
     recordedAt: new Date().toISOString(),
     commit: git('rev-parse --short HEAD'),
-    dirty: git('status --porcelain') !== '',
+    // only code that shapes the run counts (not unrelated notes or editor files)
+    dirty: git('status --porcelain -- apps scripts package.json') !== '',
     node: process.version,
     dbDriver,
     platform: `${os.platform()} ${os.arch()}`,
