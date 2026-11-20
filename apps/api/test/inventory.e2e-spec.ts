@@ -58,6 +58,24 @@ const onSql = DRIVER_FAMILY[resolveDriver()] === 'typeorm';
       .expect(stock + 1 <= 100 ? 409 : 400);
   });
 
+  it('attaches an X-Lab-Trace header with the real path (miss → write, then hit → no write)', async () => {
+    const { id } = await tshirt();
+    const body = { productId: id, quantity: 1, idempotencyKey: `trace-${Date.now()}` };
+    const decode = (h: string) => JSON.parse(Buffer.from(h, 'base64').toString('utf8'));
+    const names = (t: { spans: { name: string }[] }) => t.spans.map((s) => s.name);
+
+    const first = decode((await http().post('/api/inventory/orders').set('X-User-Id', '1').send(body).expect(201)).headers['x-lab-trace']);
+    expect(names(first)).toEqual([
+      'db.transaction', 'db.user.find', 'db.idempotency.lookup', 'db.product.read',
+      'app.stock.check', 'db.product.update', 'db.order.insert', 'db.orderItem.insert',
+    ]);
+    expect(first.spans[2].detail).toMatchObject({ hit: false });
+
+    const replay = decode((await http().post('/api/inventory/orders').set('X-User-Id', '1').send(body).expect(200)).headers['x-lab-trace']);
+    expect(names(replay)).toEqual(['db.transaction', 'db.user.find', 'db.idempotency.lookup']);
+    expect(replay.spans[2].detail).toMatchObject({ hit: true });
+  });
+
   it('401 without X-User-Id, 400 on invalid body', async () => {
     await http().post('/api/inventory/orders').send({ productId: 1, quantity: 1 }).expect(401);
     await http().post('/api/inventory/orders').set('X-User-Id', '1').send({ productId: 'x', quantity: 0 }).expect(400);

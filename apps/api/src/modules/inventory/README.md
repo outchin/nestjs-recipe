@@ -29,8 +29,8 @@ The key means *one attempt*, not *one product* — buying the same sneaker again
 | | what | where |
 |---|---|---|
 | Client | `crypto.randomUUID()` per attempt, reused on retry (kept in `localStorage`) | `apps/web/src/labs/InventoryLab.tsx` |
-| Service | key already used by this user → return that order, skip the purchase | [`inventory.service.ts#L71-L77`](inventory.service.ts#L71-L77) |
-| Controller | new → **201**, replay → **200** | [`inventory.controller.ts#L41-L42`](inventory.controller.ts#L41-L42) |
+| Service | key already used by this user → return that order, skip the purchase | [`inventory.service.ts#L78-L88`](inventory.service.ts#L78-L88) |
+| Controller | new → **201**, replay → **200** | [`inventory.controller.ts#L45-L46`](inventory.controller.ts#L45-L46) |
 | DB | `UNIQUE (user_id, idempotency_key)` — last line of defence | [`order.entity.ts#L25`](entities/order.entity.ts#L25) |
 
 ```ts
@@ -80,7 +80,7 @@ Errors: 401 no user · 400 bad body · 404 unknown user/product · 409 insuffici
 
 ## 3. Order flow (step 1)
 
-[`createOrder`](inventory.service.ts#L66-L117), one transaction: user? → key seen? → **read** stock →
+[`createOrder`](inventory.service.ts#L67-L146), one transaction: user? → key seen? → **read** stock →
 **check** in JS → **write** new stock → insert order + item (price snapshot).
 
 ⚠️ Read → check → write with no lock: fine for one user, **broken for two at once** (both read `1`,

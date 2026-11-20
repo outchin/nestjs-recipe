@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { DataSource } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderEntity, OrderItemEntity, OrderStatus, ProductEntity, UserEntity } from './entities';
+import { labTrace } from '../../common/lab-trace/lab-trace';
 import { multiply } from './money';
 import { SEED_PRODUCTS, SEED_USERS } from './seed-data';
 
@@ -64,55 +65,83 @@ export class InventoryService {
    * both read stock=1 and both succeed. That race is the next step of the lab.
    */
   async createOrder(userId: number, dto: CreateOrderDto): Promise<CreateOrderResult> {
-    return this.dataSource.transaction(async (em) => {
-      const user = await em.findOneBy(UserEntity, { id: userId });
-      if (!user) throw new NotFoundException(`User ${userId} not found`);
+    // labTrace.span/note only record what happens (for the web visualizer); they don't change behaviour.
+    return labTrace.span(
+      'db.transaction',
+      () =>
+        this.dataSource.transaction(async (em) => {
+          const user = await labTrace.span('db.user.find', () => em.findOneBy(UserEntity, { id: userId }), (u) => ({
+            found: !!u,
+          }));
+          if (!user) throw new NotFoundException(`User ${userId} not found`);
 
-      if (dto.idempotencyKey) {
-        const existing = await em.findOne(OrderEntity, {
-          where: { userId, idempotencyKey: dto.idempotencyKey },
-          relations: { items: true },
-        });
-        if (existing) return { order: existing, created: false };
-      }
+          if (dto.idempotencyKey) {
+            const existing = await labTrace.span(
+              'db.idempotency.lookup',
+              () =>
+                em.findOne(OrderEntity, {
+                  where: { userId, idempotencyKey: dto.idempotencyKey },
+                  relations: { items: true },
+                }),
+              (o) => ({ hit: !!o, orderId: o?.id ?? null }),
+            );
+            if (existing) return { order: existing, created: false };
+          } else {
+            labTrace.note('idempotency.skipped');
+          }
 
-      // read
-      const product = await em.findOneBy(ProductEntity, { id: dto.productId });
-      if (!product) throw new NotFoundException(`Product ${dto.productId} not found`);
+          // read
+          const product = await labTrace.span(
+            'db.product.read',
+            () => em.findOneBy(ProductEntity, { id: dto.productId }),
+            (p) => ({ productId: dto.productId, stock: p?.stock ?? null, version: p?.version ?? null }),
+          );
+          if (!product) throw new NotFoundException(`Product ${dto.productId} not found`);
 
-      // check (in application memory — the value may already be stale)
-      if (product.stock < dto.quantity) {
-        throw new ConflictException({
-          message: 'Insufficient stock',
-          productId: product.id,
-          requested: dto.quantity,
-          available: product.stock,
-        });
-      }
+          // check (in application memory — the value may already be stale)
+          const enough = product.stock >= dto.quantity;
+          labTrace.note('app.stock.check', { stock: product.stock, requested: dto.quantity, ok: enough });
+          if (!enough) {
+            throw new ConflictException({
+              message: 'Insufficient stock',
+              productId: product.id,
+              requested: dto.quantity,
+              available: product.stock,
+            });
+          }
 
-      // write: UPDATE products SET stock = <value computed in JS>
-      product.stock -= dto.quantity;
-      await em.save(product);
+          // write: UPDATE products SET stock = <value computed in JS>
+          product.stock -= dto.quantity;
+          await labTrace.span('db.product.update', () => em.save(product), (p) => ({ stock: p.stock }));
 
-      const order = await em.save(
-        em.create(OrderEntity, {
-          userId,
-          status: OrderStatus.CONFIRMED,
-          totalAmount: multiply(product.price, dto.quantity),
-          idempotencyKey: dto.idempotencyKey ?? null,
+          const order = await labTrace.span(
+            'db.order.insert',
+            () =>
+              em.save(
+                em.create(OrderEntity, {
+                  userId,
+                  status: OrderStatus.CONFIRMED,
+                  totalAmount: multiply(product.price, dto.quantity),
+                  idempotencyKey: dto.idempotencyKey ?? null,
+                }),
+              ),
+            (o) => ({ orderId: o.id }),
+          );
+          const item = await labTrace.span('db.orderItem.insert', () =>
+            em.save(
+              em.create(OrderItemEntity, {
+                orderId: order.id,
+                productId: product.id,
+                quantity: dto.quantity,
+                unitPrice: product.price, // price snapshot at purchase time
+              }),
+            ),
+          );
+
+          order.items = [item];
+          return { order, created: true };
         }),
-      );
-      const item = await em.save(
-        em.create(OrderItemEntity, {
-          orderId: order.id,
-          productId: product.id,
-          quantity: dto.quantity,
-          unitPrice: product.price, // price snapshot at purchase time
-        }),
-      );
-
-      order.items = [item];
-      return { order, created: true };
-    });
+      (r) => ({ committed: true, created: r.created }),
+    );
   }
 }

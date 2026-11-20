@@ -1,0 +1,125 @@
+/* Stage engine styles: tones, stage, waterfall, segmented control, chips. Lab-agnostic. */
+
+/* one class picks a tone; everything below reads --tone-* */
+.t-neutral { --tone-fill: var(--neutral-fill); --tone-text: var(--neutral-text); --tone-soft: var(--neutral-soft); }
+.t-info    { --tone-fill: var(--info-fill);    --tone-text: var(--info-text);    --tone-soft: var(--info-soft); }
+.t-ok      { --tone-fill: var(--ok-fill);      --tone-text: var(--ok-text);      --tone-soft: var(--ok-soft); }
+.t-replay  { --tone-fill: var(--replay-fill);  --tone-text: var(--replay-text);  --tone-soft: var(--replay-soft); }
+.t-error   { --tone-fill: var(--error-fill);   --tone-text: var(--error-text);   --tone-soft: var(--error-soft); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px;
+  font: 600 12px/1.6 var(--mono); color: var(--tone-text); background: var(--tone-soft);
+}
+
+/* segmented control */
+.segmented { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--neutral-soft); }
+.segmented button { border: 0; background: transparent; box-shadow: none; padding: 5px 14px; font-size: 13px; color: var(--text-2); }
+.segmented button.is-on { background: var(--glass-strong); color: var(--text); font-weight: 600; box-shadow: var(--shadow-sm); }
+
+/* ── stage ── */
+.stage {
+  position: relative; margin: 0; width: 100%; container-type: inline-size;
+  border-radius: 20px; overflow: hidden;
+  background:
+    radial-gradient(circle at 1px 1px, var(--hairline) 1px, transparent 0) 0 0 / 22px 22px,
+    linear-gradient(180deg, var(--glass-strong), transparent);
+  border: 1px solid var(--hairline);
+}
+.stage-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.stage-group rect { fill: var(--accent-soft); fill-opacity: 0.35; stroke: var(--hairline-strong); stroke-dasharray: 6 6; }
+.stage-group text { font: 600 15px var(--sans); fill: var(--muted); letter-spacing: 0.02em; }
+.stage-link { fill: none; stroke: var(--hairline-strong); stroke-width: 2; transition: stroke 0.25s ease; }
+.stage-link.is-active { stroke: var(--tone-fill); stroke-width: 2.5; stroke-dasharray: 2 8; stroke-linecap: round;
+  animation: link-flow 0.6s linear infinite; }
+@keyframes link-flow { to { stroke-dashoffset: -20; } }
+.stage-packet .halo { fill: var(--tone-fill); opacity: 0.55; }
+.stage-packet .core { fill: var(--tone-fill); stroke: #fff; stroke-width: 2.5; }
+.stage-packet text { font: 700 20px var(--mono); fill: var(--tone-text); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; }
+
+.stage-node {
+  position: absolute; transform: translate(-50%, -50%); width: clamp(84px, 17.5cqw, 236px);
+  padding: clamp(6px, 1.2cqw, 16px); border-radius: clamp(10px, 1.6cqw, 20px);
+  background: var(--glass-strong); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-edge); box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.35s cubic-bezier(.2,.8,.2,1);
+}
+.stage-node.is-current { transform: translate(-50%, -50%) scale(1.08); z-index: 2;
+  box-shadow: 0 0 0 6px var(--tone-soft), 0 18px 40px -12px color-mix(in srgb, var(--tone-fill) 45%, transparent); }
+.stage-node.is-marked { border-color: color-mix(in srgb, var(--tone-fill) 45%, transparent);
+  box-shadow: 0 0 0 4px var(--tone-soft), var(--shadow-sm); }
+.stage-node-head { display: flex; align-items: center; gap: clamp(5px, 1cqw, 9px); }
+.stage-node-head > div { min-width: 0; }
+.stage-icon { flex: none; display: grid; place-items: center; width: clamp(20px, 3.4cqw, 42px); aspect-ratio: 1;
+  border-radius: 30%; background: var(--accent-soft); color: var(--accent); }
+.kind-db .stage-icon { background: var(--neutral-soft); color: var(--text-2); }
+.kind-client .stage-icon { background: color-mix(in srgb, #bf5af2 16%, transparent); color: #a24bd6; }
+.stage-icon svg { width: 62%; height: 62%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.stage-node-title { font: 650 clamp(11px, 1.65cqw, 19px)/1.2 var(--sans); letter-spacing: -0.01em; }
+.stage-node-sub { font: clamp(8px, 1.05cqw, 12.5px)/1.3 var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* tags hang below the card, so the card never changes size while a request plays */
+.stage-tags { position: absolute; left: 50%; transform: translateX(-50%); top: calc(100% + 5px); width: max-content;
+  min-width: 100%; max-width: 26cqw; display: flex; flex-direction: column; gap: 3px; z-index: 1; }
+.stage-tag { font: 600 clamp(8px, 1.05cqw, 13px)/1.4 var(--mono); color: var(--tone-text);
+  background: linear-gradient(var(--tone-soft), var(--tone-soft)), var(--glass-strong);
+  border: 1px solid color-mix(in srgb, var(--tone-fill) 22%, transparent); box-shadow: var(--shadow-sm);
+  padding: 2px 7px; border-radius: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  animation: tag-in 0.25s ease both; }
+.stage-tag em { font-style: normal; font-weight: 400; opacity: 0.75; margin-left: 5px; }
+@keyframes tag-in { from { opacity: 0; transform: translateY(3px); } }
+.stage-ring { position: absolute; inset: -2px; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 0 0 var(--tone-fill); animation: ring 0.7s ease-out both; }
+@keyframes ring { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tone-fill) 55%, transparent); }
+  to { box-shadow: 0 0 0 14px transparent; } }
+.stage-footer { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 18px; font-size: clamp(11px, 1.1cqw, 14px); color: var(--muted);
+  background: linear-gradient(transparent, var(--glass-strong) 60%); }
+.stage-footer b { color: var(--text); font-family: var(--mono); }
+
+/* what is happening now: big, top-left */
+.stage-caption { position: absolute; left: clamp(10px, 1.6cqw, 22px); top: clamp(10px, 1.6cqw, 22px); z-index: 3;
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; max-width: 62%;
+  padding: clamp(6px, 1cqw, 12px) clamp(10px, 1.4cqw, 18px); border-radius: 14px;
+  background: linear-gradient(var(--tone-soft), var(--tone-soft)), var(--glass-strong);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid color-mix(in srgb, var(--tone-fill) 30%, transparent); box-shadow: var(--shadow-sm);
+  animation: tag-in 0.2s ease both; }
+.stage-caption-node { font: 600 clamp(10px, 1.1cqw, 13px) var(--sans); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stage-caption-tag { font: 700 clamp(14px, 2.1cqw, 26px)/1.15 var(--display); color: var(--tone-text); letter-spacing: -0.02em; }
+.stage-caption-ms { font: 500 clamp(10px, 1.1cqw, 14px) var(--mono); color: var(--muted); }
+
+/* a node's mini table (e.g. rows in a DB table right now) */
+.node-panel { margin: clamp(4px, 0.7cqw, 8px) 0 0; display: grid; gap: 1px; min-width: 0;
+  font: 500 clamp(8px, 1cqw, 12px)/1.35 var(--mono); }
+.node-panel > div { display: flex; justify-content: space-between; gap: 8px; padding: 1px 6px; border-radius: 5px;
+  background: var(--neutral-soft); }
+.node-panel dt { color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.node-panel dd { margin: 0; font-weight: 700; color: var(--text); white-space: nowrap; }
+.node-panel > div.is-changed { background: var(--ok-soft); animation: row-flash 1.2s ease both; }
+.node-panel > div.is-changed dd { color: var(--ok-text); }
+@keyframes row-flash { 0% { background: color-mix(in srgb, var(--ok-fill) 55%, transparent); transform: scale(1.04); } 100% { } }
+
+/* ── waterfall ── */
+.waterfall { display: grid; gap: 14px; }
+.wf-request { background: var(--glass-strong); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 12px 14px; }
+.wf-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; font-size: 13px; }
+.wf-who { font-weight: 600; text-transform: capitalize; }
+.wf-time { margin-left: auto; color: var(--muted); font-size: 12px; }
+.wf-time b { color: var(--text); font-family: var(--mono); font-weight: 600; }
+.wf-empty { margin: 0; color: var(--muted); font-size: 13px; }
+.wf-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.wf-row { display: grid; grid-template-columns: minmax(0, 11.5em) 1fr 3.4em; align-items: center; gap: 10px; font-size: 12px; }
+.wf-label { padding-left: calc(var(--depth, 0) * 12px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-2); }
+.wf-track { position: relative; height: 10px; border-radius: 5px; background: var(--neutral-soft); }
+.wf-bar { position: absolute; top: 0; bottom: 0; border-radius: 5px; background: var(--tone-fill); }
+.wf-note { position: absolute; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; transform: rotate(45deg);
+  background: var(--tone-fill); border-radius: 2px; }
+.wf-ms { font: 12px var(--mono); text-align: right; color: var(--muted); }
+.wf-outside { border-top: 1px dashed var(--hairline-strong); padding-top: 4px; margin-top: 2px; }
+.wf-outside .wf-track { background: transparent; }
+
+/* narrow stages (phones): drop subtitles, keep titles and live tags */
+@container (max-width: 520px) {
+  .stage-node-sub, .stage-group text, .stage-tags, .node-panel { display: none; }
+  .stage-caption { max-width: 92%; }
+  .stage-tag em { display: none; }
+}

@@ -7,16 +7,20 @@ import {
   HttpStatus,
   Post,
   Res,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { LabTraceInterceptor } from '../../common/lab-trace/lab-trace.interceptor';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { InventoryService } from './inventory.service';
 import { UserId } from './user-id.decorator';
 
 @Controller('inventory')
 // Lab-scoped validation: rejects wrong types and unknown fields with 400.
+// Lab visualizer: each response carries an X-Lab-Trace header (dev only).
+@UseInterceptors(LabTraceInterceptor)
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true }))
 export class InventoryController {
   constructor(private readonly inventory: InventoryService) {}
