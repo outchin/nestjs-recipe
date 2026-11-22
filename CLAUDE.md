@@ -36,5 +36,5 @@ npm run record:inventory   # re-record Lab 01 (resets the demo data)
 npm run record:indexes     # re-record Lab 02 (first run seeds ~1M rows, ~10 s)
 npm run snippets           # copy `// lab:snippet` code blocks into the lab pages (recorders do it too)
 npm run build:pages        # static build for GitHub Pages (Recorded mode only)
-npm run build:labs         # build served at zawwaisoe.dev/labs (vercel.json; portfolio rewrites /labs/* here)
+npm run build:labs         # build served at zawwaisoe.dev/labs (apps/web/vercel.json; Vercel project root = apps/web; portfolio rewrites /labs/* here)
 ```
