@@ -64,10 +64,11 @@ export interface DbState {
   /** every order, oldest first (optional: recordings made before this field existed) */
   orders?: DbOrder[];
 }
-export interface StepRun {
+/** One scenario step as it ran. S = the lab's DB snapshot (default: the inventory lab's). */
+export interface StepRun<S = DbState> {
   stepId: string;
   requests: RequestRecord[];
-  after: DbState;
+  after: S;
 }
 
 // ── a saved real run (apps/web/src/recordings/<lab>/<scenario>.json) ──
@@ -81,11 +82,11 @@ export interface RecordingMeta {
   platform: string;
   cpu?: string;
 }
-export interface Recording {
+export interface Recording<S = DbState> {
   meta: RecordingMeta;
   /** database right after the reset, before step one */
-  initial?: DbState;
-  runs: StepRun[];
+  initial?: S;
+  runs: StepRun<S>[];
 }
 
 // ── the stage: a scene (layout) + hops (what to animate) ──
@@ -97,9 +98,13 @@ export interface SceneNode {
   y: number;
   title: string;
   subtitle?: string;
-  kind: 'client' | 'server' | 'db';
+  /**
+   * client = device, server = app server, db = a database server (one cylinder = one server),
+   * index = a B-tree inside a table, rows = the table's rows (InnoDB: the clustered PRIMARY index).
+   */
+  kind: 'client' | 'server' | 'db' | 'index' | 'rows';
   /** 3D view: where the flat label sits relative to the solid (default top) */
-  labelSide?: 'top' | 'left' | 'right';
+  labelSide?: 'top' | 'bottom' | 'left' | 'right';
 }
 export interface SceneLink {
   id: string;
@@ -129,4 +134,20 @@ export type Hop =
 /** A small live table pinned to a node (e.g. what a DB table holds now). */
 export interface NodePanel {
   rows: { label: string; value?: string; changed?: boolean }[];
+  /** the thing this node stands for doesn't exist yet (e.g. an index before CREATE INDEX): drawn ghosted */
+  absent?: boolean;
+}
+
+// ── the code that matters (scripts/extract-snippets.mts copies it from apps/api/src) ──
+export interface Snippet {
+  /** repo-relative path */
+  file: string;
+  /** 1-based, first / last copied line */
+  start: number;
+  end: number;
+  code: string;
+}
+export interface SnippetFile {
+  meta: { extractedAt: string; commit: string; commitFull: string; dirty: boolean; repo?: string };
+  snippets: Record<string, Snippet>;
 }

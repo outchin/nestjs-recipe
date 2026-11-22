@@ -12,6 +12,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { request } from '../apps/web/src/stage/http.ts';
+import { extractSnippets } from './extract-snippets.mts';
 import type { Recording, Scenario, StepRun } from '../apps/web/src/stage/types.ts';
 import { newContext, resetDemo, runStep } from '../apps/web/src/labs/inventory/run.ts';
 
@@ -65,3 +66,6 @@ mkdirSync(outDir, { recursive: true });
 const out = new URL(`${scenario.id}.json`, outDir);
 writeFileSync(out, JSON.stringify(recording, null, 2) + '\n');
 console.log(`\nSaved ${fileURLToPath(out)}`);
+// the code shown on the page comes from the same commit as the run
+extractSnippets();
+console.log('Snippets refreshed (npm run snippets)');

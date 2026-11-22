@@ -19,7 +19,7 @@ correct → reliable → fast → scaled → deployed and observed.
 | | Topic | Type | What to show / measure |
 |---|---|---|---|
 | ✅ | Idempotency keys (Lab 01) | Lab | same key → same order; same-key race → 201 + 500 |
-| ▶ | Indexes & EXPLAIN | Lab | ~1M rows: query with / without index — EXPLAIN type, rows read, latency; when an index is *not* used |
+| ✅ | Indexes & EXPLAIN (Lab 02) | Lab | ~1M rows: scan 1.0M rows vs seek 11 rows; LOWER() gotcha; INSERT cost with an index |
 | · | Duplicate key → 200 (fix Lab 01's race) | Lab | before/after recording of the double tap |
 | · | Row locks vs optimistic locking | Lab | Alice and Bob race for the last sneaker (`version` column already exists) |
 | · | Transaction isolation levels | Lab | lost update, dirty / non-repeatable read per level |

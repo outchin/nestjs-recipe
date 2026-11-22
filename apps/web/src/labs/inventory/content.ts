@@ -4,7 +4,10 @@
  * Short on purpose: the stage does the explaining. Numbers never live here.
  */
 
-export type Lang = 'en' | 'my';
+import type { CodeRef } from '../../stage/CodePanel';
+import type { Lang } from '../../stage/ui';
+
+export type { Lang };
 
 export const REPO = 'https://github.com/outchin/nestjs-recipe/blob/main';
 
@@ -69,3 +72,14 @@ export const CODE_LINKS = [
   { label: 'Lab trace', path: 'apps/api/src/common/lab-trace/lab-trace.ts' },
   { label: 'Scenario', path: 'apps/web/src/labs/inventory/scenario.json' },
 ];
+
+/** The code behind each step: snippet ids from apps/api/src (`// lab:snippet inventory/<id>`) + the lines that decide it. */
+export const STEP_CODE: Record<string, CodeRef[]> = {
+  buy: [{ id: 'idempotency-lookup', highlight: ['where: { userId, idempotencyKey'] }],
+  retry: [{ id: 'idempotency-lookup', highlight: ['if (existing) return'] }],
+  bob: [{ id: 'stock-check', highlight: ['const enough', 'if (!enough)', 'ConflictException'] }],
+  double: [
+    { id: 'order-insert', highlight: ["'db.order.insert'", 'idempotencyKey: dto.idempotencyKey'] },
+    { id: 'unique-key', highlight: ['uq_orders_user_idempotency'] },
+  ],
+};

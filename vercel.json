@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci -w apps/web",
+  "buildCommand": "npm run build:labs",
+  "outputDirectory": "apps/web/dist-labs",
+  "framework": null,
+  "redirects": [{ "source": "/", "destination": "/labs", "permanent": false }],
+  "rewrites": [{ "source": "/labs/:path*", "destination": "/labs/index.html" }]
+}

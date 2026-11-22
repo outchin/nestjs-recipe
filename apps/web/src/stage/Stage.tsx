@@ -25,6 +25,12 @@ export const ICON: Record<SceneNode['kind'], JSX.Element> = {
   db: (
     <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="8" ry="3" /><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13" /><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" /></svg>
   ),
+  index: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="4" rx="1" /><rect x="3" y="17" width="6" height="4" rx="1" /><rect x="15" y="17" width="6" height="4" rx="1" /><path d="M12 7v5M6 17v-5h12v5" /></svg>
+  ),
+  rows: (
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M3 14h18M9 9v11" /></svg>
+  ),
 };
 
 /** "what is happening now", big, top-left. Used by both views. */
@@ -115,7 +121,7 @@ export function Stage({ scene, packets, marks, caption, footer, panels }: StageP
         return (
           <div
             key={n.id}
-            className={`stage-node kind-${n.kind}${last ? ` t-${last.tone} is-marked` : ''}${caption?.node === n.id ? ' is-current' : ''}`}
+            className={`stage-node kind-${n.kind}${last ? ` t-${last.tone} is-marked` : ''}${caption?.node === n.id ? ' is-current' : ''}${panels?.[n.id]?.absent ? ' is-absent' : ''}`}
             style={{ left: `${(n.x / scene.width) * 100}%`, top: `${(n.y / scene.height) * 100}%` }}
           >
             {last && <span key={last.seq} className="stage-ring" aria-hidden="true" />}

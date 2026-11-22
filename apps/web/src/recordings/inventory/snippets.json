@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "extractedAt": "2026-11-21T18:51:10.859Z",
+    "commit": "04ee224",
+    "commitFull": "04ee2245054ee2e57f2ebe810c93fd0bc24a2d81",
+    "dirty": true,
+    "repo": "https://github.com/outchin/nestjs-recipe"
+  },
+  "snippets": {
+    "unique-key": {
+      "file": "apps/api/src/modules/inventory/entities/order.entity.ts",
+      "start": 24,
+      "end": 26,
+      "code": "@Entity('orders')\n// Same client retry (same key) can never create a second order.\n@Index('uq_orders_user_idempotency', ['userId', 'idempotencyKey'], { unique: true })"
+    },
+    "idempotency-lookup": {
+      "file": "apps/api/src/modules/inventory/inventory.service.ts",
+      "start": 79,
+      "end": 92,
+      "code": "if (dto.idempotencyKey) {\n  const existing = await labTrace.span(\n    'db.idempotency.lookup',\n    () =>\n      em.findOne(OrderEntity, {\n        where: { userId, idempotencyKey: dto.idempotencyKey },\n        relations: { items: true },\n      }),\n    (o) => ({ hit: !!o, orderId: o?.id ?? null }),\n  );\n  if (existing) return { order: existing, created: false };\n} else {\n  labTrace.note('idempotency.skipped');\n}"
+    },
+    "stock-check": {
+      "file": "apps/api/src/modules/inventory/inventory.service.ts",
+      "start": 104,
+      "end": 114,
+      "code": "// check (in application memory — the value may already be stale)\nconst enough = product.stock >= dto.quantity;\nlabTrace.note('app.stock.check', { stock: product.stock, requested: dto.quantity, ok: enough });\nif (!enough) {\n  throw new ConflictException({\n    message: 'Insufficient stock',\n    productId: product.id,\n    requested: dto.quantity,\n    available: product.stock,\n  });\n}"
+    },
+    "order-insert": {
+      "file": "apps/api/src/modules/inventory/inventory.service.ts",
+      "start": 122,
+      "end": 134,
+      "code": "const order = await labTrace.span(\n  'db.order.insert',\n  () =>\n    em.save(\n      em.create(OrderEntity, {\n        userId,\n        status: OrderStatus.CONFIRMED,\n        totalAmount: multiply(product.price, dto.quantity),\n        idempotencyKey: dto.idempotencyKey ?? null,\n      }),\n    ),\n  (o) => ({ orderId: o.id }),\n);"
+    }
+  }
+}

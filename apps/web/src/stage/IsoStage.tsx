@@ -6,7 +6,7 @@ import './iso.css';
 /*
  * The 2.5D view of the same scene: the floor plan (scene x/y) is rotated and
  * squashed into a dimetric projection, nodes become solids (server rack, DB
- * cylinder, client device), packets roll across the floor. Text stays flat
+ * cylinder = one database server, B-tree = an index, row slabs = a table's rows, client device), packets roll across the floor. Text stays flat
  * (HTML labels on top), so it is as readable as in 2D.
  */
 
@@ -31,8 +31,14 @@ const SOLID = {
   server: { w: 170, d: 110, h: 118 },
   client: { w: 124, d: 80, h: 34 },
   db: { r: 58, h: 72 },
+  /** a B-tree standing on a plinth */
+  index: { w: 150, d: 90, h: 104 },
+  /** stacked row slabs (the table's rows) */
+  rows: { w: 170, d: 110, h: 74 },
 } as const;
 const heightOf = (n: SceneNode) => SOLID[n.kind].h;
+/** floor footprint of the box-like kinds */
+const boxOf = (n: SceneNode) => (n.kind === 'db' ? { w: SOLID.db.r * 2, d: SOLID.db.r * 2 } : SOLID[n.kind]);
 
 function floorRect(x: number, y: number, w: number, h: number): Pt[] {
   return [proj(x, y), proj(x + w, y), proj(x + w, y + h), proj(x, y + h)];
@@ -53,10 +59,10 @@ function linkPath(a: SceneNode, b: SceneNode) {
   return 'M ' + out.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L ');
 }
 
-function Prism({ node, server }: { node: SceneNode; server: boolean }) {
-  const { w, d, h } = server ? SOLID.server : SOLID.client;
-  const c = proj(node.x, node.y);
-  const base = floorRect(node.x - w / 2, node.y - d / 2, w, d);
+/** a box on the floor at (x, y), lifted by `lift` px; `rack` draws server slots on the right face */
+function Box({ x, y, w, d, h, lift = 0, rack = false }: { x: number; y: number; w: number; d: number; h: number; lift?: number; rack?: boolean }) {
+  const c = up(proj(x, y), lift);
+  const base = floorRect(x - w / 2, y - d / 2, w, d).map((p) => up(p, lift));
   const top = base.map((p) => up(p, h));
   // the two side faces whose bottom edge is in front of the centre are the visible ones
   const faces = [0, 1, 2, 3]
@@ -76,7 +82,7 @@ function Prism({ node, server }: { node: SceneNode; server: boolean }) {
         return (
           <g key={i}>
             <polygon points={pts(quad)} className={`iso-face iso-${side}`} />
-            {server && side === 'right' &&
+            {rack && side === 'right' &&
               [0.28, 0.5, 0.72].map((f) => {
                 const a = lerp(base[i], top[i], f);
                 const b = lerp(base[j], top[j], f);
@@ -92,6 +98,61 @@ function Prism({ node, server }: { node: SceneNode; server: boolean }) {
       })}
       <polygon points={pts(top)} className="iso-face iso-top" />
       <polygon points={pts(top)} className="iso-tint" />
+    </>
+  );
+}
+
+function Prism({ node, server }: { node: SceneNode; server: boolean }) {
+  const { w, d, h } = server ? SOLID.server : SOLID.client;
+  return <Box x={node.x} y={node.y} w={w} d={d} h={h} rack={server} />;
+}
+
+/** the table's rows: thin slabs stacked like sheets (InnoDB keeps them in the PRIMARY B-tree, sorted by id) */
+function RowStack({ node }: { node: SceneNode }) {
+  const { w, d, h } = SOLID.rows;
+  const n = 5;
+  const gap = 4;
+  const slab = (h - gap * (n - 1)) / n;
+  return (
+    <>
+      {Array.from({ length: n }, (_, i) => (
+        <Box key={i} x={node.x} y={node.y} w={w} d={d} h={slab} lift={i * (slab + gap)} />
+      ))}
+    </>
+  );
+}
+
+/** a B-tree on a plinth: root → 2 inner pages → 4 leaf pages (drawn flat, facing the viewer) */
+function Tree({ node }: { node: SceneNode }) {
+  const { w, d, h } = SOLID.index;
+  const plinth = 12;
+  const c = up(proj(node.x, node.y), plinth);
+  const page = { w: 30, h: 13 };
+  const levels = [
+    { y: c.y - h + 8, xs: [0] },
+    { y: c.y - h * 0.55, xs: [-38, 38] },
+    { y: c.y - 22, xs: [-57, -19, 19, 57] },
+  ];
+  const edges: [Pt, Pt][] = [];
+  levels.slice(1).forEach((lv, li) => {
+    const parent = levels[li];
+    lv.xs.forEach((x, k) => {
+      const px = parent.xs[Math.floor(k / (lv.xs.length / parent.xs.length))];
+      edges.push([{ x: c.x + px, y: parent.y + page.h }, { x: c.x + x, y: lv.y }]);
+    });
+  });
+  return (
+    <>
+      <Box x={node.x} y={node.y} w={w} d={d} h={plinth} />
+      {edges.map(([a, b], i) => <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="iso-tree-edge" />)}
+      {levels.map((lv, li) =>
+        lv.xs.map((x) => (
+          <g key={`${li}-${x}`}>
+            <rect x={c.x + x - page.w / 2 + 2.5} y={lv.y + 3} width={page.w} height={page.h} rx={3} className="iso-tree-depth" />
+            <rect x={c.x + x - page.w / 2} y={lv.y} width={page.w} height={page.h} rx={3}
+              className={`iso-tree-page${li === levels.length - 1 ? ' is-leaf' : ''}`} />
+          </g>
+        )))}
     </>
   );
 }
@@ -113,15 +174,16 @@ function Cylinder({ node }: { node: SceneNode }) {
   );
 }
 
-/** where a node's flat label is pinned: above the solid, or beside it at mid height */
-function labelAnchor(n: SceneNode, side: 'top' | 'left' | 'right'): Pt {
+/** where a node's flat label is pinned: above or below the solid, or beside it at mid height */
+function labelAnchor(n: SceneNode, side: NonNullable<SceneNode['labelSide']>): Pt {
   const c = proj(n.x, n.y);
   const h = heightOf(n);
   if (side === 'top') return up(c, h + (n.kind === 'db' ? SOLID.db.r * SQUASH : 14));
+  if (side === 'bottom') return up(c, -(n.kind === 'db' ? SOLID.db.r * SQUASH : boxOf(n).d * SQUASH * 0.6) - 12);
   let half: number;
   if (n.kind === 'db') half = SOLID.db.r;
   else {
-    const { w, d } = n.kind === 'server' ? SOLID.server : SOLID.client;
+    const { w, d } = boxOf(n);
     half = Math.max(...floorRect(n.x - w / 2, n.y - d / 2, w, d).map((p) => Math.abs(p.x - c.x)));
   }
   const gap = 16;
@@ -135,10 +197,10 @@ export function IsoStage({ scene, packets, marks, caption, footer, panels }: Sta
 
   // view box: the projected floor, plus room above the tallest labels
   const floor = floorRect(0, 0, scene.width, scene.height);
-  // labels need ~120 above the tallest solid, the caption another ~70
-  const labelRoom = Math.min(...scene.nodes.map((n) => proj(n.x, n.y).y - heightOf(n))) - 190;
+  // labels need ~120 above the tallest solid, the caption another ~120
+  const labelRoom = Math.min(...scene.nodes.map((n) => proj(n.x, n.y).y - heightOf(n))) - 240;
   // side labels need room beside their solid (≈ the widest tag)
-  const SIDE_ROOM = 430;
+  const SIDE_ROOM = 540;
   const sideX = (side: 'left' | 'right') =>
     scene.nodes.filter((n) => n.labelSide === side).map((n) => labelAnchor(n, side).x);
   const minX = Math.min(...floor.map((p) => p.x).map((x) => x - 30), ...sideX('left').map((x) => x - SIDE_ROOM));
@@ -203,14 +265,17 @@ export function IsoStage({ scene, packets, marks, caption, footer, panels }: Sta
           const nodeMarks = marks[n.id] ?? [];
           const last = nodeMarks[nodeMarks.length - 1];
           const c = proj(n.x, n.y);
-          const r = n.kind === 'db' ? SOLID.db.r : (n.kind === 'server' ? SOLID.server.w : SOLID.client.w) * 0.62;
+          const r = n.kind === 'db' ? SOLID.db.r : boxOf(n).w * 0.62;
           return (
             <g key={n.id}
-              className={`iso-block kind-${n.kind}${last ? ` t-${last.tone} is-marked` : ''}${caption?.node === n.id ? ' is-current' : ''}`}>
+              className={`iso-block kind-${n.kind}${last ? ` t-${last.tone} is-marked` : ''}${caption?.node === n.id ? ' is-current' : ''}${panels?.[n.id]?.absent ? ' is-absent' : ''}`}>
               <ellipse cx={c.x + 10} cy={c.y + 8} rx={r * 1.05} ry={r * SQUASH * 0.9} className="iso-shadow" filter="url(#iso-blur)" />
               {last && <ellipse key={last.seq} cx={c.x} cy={c.y} rx={r * 1.15} ry={r * 1.15 * SQUASH} className="iso-ring" />}
               <g className="iso-solid">
-                {n.kind === 'db' ? <Cylinder node={n} /> : <Prism node={n} server={n.kind === 'server'} />}
+                {n.kind === 'db' ? <Cylinder node={n} />
+                  : n.kind === 'index' ? <Tree node={n} />
+                    : n.kind === 'rows' ? <RowStack node={n} />
+                      : <Prism node={n} server={n.kind === 'server'} />}
               </g>
             </g>
           );
@@ -234,7 +299,7 @@ export function IsoStage({ scene, packets, marks, caption, footer, panels }: Sta
         const anchor = labelAnchor(n, side);
         return (
           <div key={n.id} style={pct(anchor)}
-            className={`iso-label side-${side} kind-${n.kind}${last ? ` t-${last.tone} is-marked` : ''}${caption?.node === n.id ? ' is-current' : ''}`}>
+            className={`iso-label side-${side} kind-${n.kind}${last ? ` t-${last.tone} is-marked` : ''}${caption?.node === n.id ? ' is-current' : ''}${panels?.[n.id]?.absent ? ' is-absent' : ''}`}>
             {nodeMarks.length > 0 && (
               <div className="iso-tags" aria-live="polite">
                 {nodeMarks.map((m) => (

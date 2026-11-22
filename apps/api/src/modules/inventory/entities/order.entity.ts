@@ -20,9 +20,11 @@ export enum OrderStatus {
 }
 
 /** One checkout by one user. Lines live in order_items. */
+// lab:snippet inventory/unique-key
 @Entity('orders')
 // Same client retry (same key) can never create a second order.
 @Index('uq_orders_user_idempotency', ['userId', 'idempotencyKey'], { unique: true })
+// lab:end
 export class OrderEntity {
   @PrimaryGeneratedColumn()
   id: number;

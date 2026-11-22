@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { call } from '../api';
+import { PUBLISHED } from '../site';
 
 // One entry per lab endpoint. New labs just append here.
 const endpoints = [
@@ -10,6 +11,7 @@ const endpoints = [
 // One entry per lab page (see routes in App.tsx).
 export const labPages = [
   { path: '/labs/inventory/idempotency', title: 'Inventory · Idempotency', blurb: 'Same key → same order. Buy twice, get charged once.' },
+  { path: '/labs/indexes', title: 'Indexes & EXPLAIN', blurb: '~1M rows: full scan vs B-tree seek, the LOWER() gotcha, and what an index costs on writes.' },
 ];
 
 export function HomePage() {
@@ -37,6 +39,9 @@ export function HomePage() {
         ))}
       </ul>
 
+      {/* the published build has no API behind it */}
+      {!PUBLISHED && (
+        <>
       <h2>Endpoints</h2>
       <div className="row">
         {endpoints.map((e) => (
@@ -46,6 +51,8 @@ export function HomePage() {
         ))}
       </div>
       <pre className="output">{result}</pre>
+        </>
+      )}
     </>
   );
 }

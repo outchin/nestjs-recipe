@@ -52,7 +52,11 @@
 .stage-node-head > div { min-width: 0; }
 .stage-icon { flex: none; display: grid; place-items: center; width: clamp(20px, 3.4cqw, 42px); aspect-ratio: 1;
   border-radius: 30%; background: var(--accent-soft); color: var(--accent); }
-.kind-db .stage-icon { background: var(--neutral-soft); color: var(--text-2); }
+.kind-db .stage-icon, .kind-rows .stage-icon { background: var(--neutral-soft); color: var(--text-2); }
+.kind-index .stage-icon { background: color-mix(in srgb, #30b0c7 16%, transparent); color: #1f8ea3; }
+/* not created yet (e.g. an index before CREATE INDEX) */
+.stage-node.is-absent { border-style: dashed; background: transparent; box-shadow: none; }
+.stage-node.is-absent .stage-node-head { opacity: 0.55; }
 .kind-client .stage-icon { background: color-mix(in srgb, #bf5af2 16%, transparent); color: #a24bd6; }
 .stage-icon svg { width: 62%; height: 62%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .stage-node-title { font: 650 clamp(11px, 1.65cqw, 19px)/1.2 var(--sans); letter-spacing: -0.01em; }

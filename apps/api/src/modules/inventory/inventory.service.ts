@@ -75,6 +75,7 @@ export class InventoryService {
           }));
           if (!user) throw new NotFoundException(`User ${userId} not found`);
 
+          // lab:snippet inventory/idempotency-lookup
           if (dto.idempotencyKey) {
             const existing = await labTrace.span(
               'db.idempotency.lookup',
@@ -89,6 +90,7 @@ export class InventoryService {
           } else {
             labTrace.note('idempotency.skipped');
           }
+          // lab:end
 
           // read
           const product = await labTrace.span(
@@ -98,6 +100,7 @@ export class InventoryService {
           );
           if (!product) throw new NotFoundException(`Product ${dto.productId} not found`);
 
+          // lab:snippet inventory/stock-check
           // check (in application memory — the value may already be stale)
           const enough = product.stock >= dto.quantity;
           labTrace.note('app.stock.check', { stock: product.stock, requested: dto.quantity, ok: enough });
@@ -109,11 +112,13 @@ export class InventoryService {
               available: product.stock,
             });
           }
+          // lab:end
 
           // write: UPDATE products SET stock = <value computed in JS>
           product.stock -= dto.quantity;
           await labTrace.span('db.product.update', () => em.save(product), (p) => ({ stock: p.stock }));
 
+          // lab:snippet inventory/order-insert
           const order = await labTrace.span(
             'db.order.insert',
             () =>
@@ -127,6 +132,7 @@ export class InventoryService {
               ),
             (o) => ({ orderId: o.id }),
           );
+          // lab:end
           const item = await labTrace.span('db.orderItem.insert', () =>
             em.save(
               em.create(OrderItemEntity, {

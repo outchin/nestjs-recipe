@@ -1,7 +1,8 @@
 # Lab visualizer — the framework every lab page follows
 
 Lab 01 (`/labs/inventory/idempotency`) is the reference implementation and was signed off as final
-on 2026-11-20. Every new lab page copies its flow, look and rules. Don't redesign per lab — extend.
+on 2026-11-20. Lab 02 (`/labs/indexes`) was the first lab built on the shared layer below.
+Every new lab page reuses the same flow, look and rules. Don't redesign per lab — extend.
 
 ## The idea
 
@@ -24,6 +25,9 @@ published page. Nothing is animated from a hand-written script, and no number is
      Run all / Reset DB.
    - Live status line (reset time, steps run, why Send is blocked).
    - Callout only when reality differs from theory (one paragraph: why).
+   - **The code behind this step** (open by default): the real snippet(s) that decide the step,
+     key lines highlighted, one-line note with numbers from the run, and — when the API reports it —
+     the exact statement the run sent. Links to the exact lines at the recorded commit.
    - **Timings** collapsed (waterfall of the server spans + network).
 3. **Three mini cards** — The idea (question + ≤3 notes + reference image) · What the data says
    (big numbers computed from the run) · Code (link chips).
@@ -41,6 +45,11 @@ usePlayer ── plays lanes (parallel requests = parallel lanes) ──▶ Stag
 dbPanels(now, before) ──▶ tables on DB nodes; switch to `after` on the commit event
 ```
 
+- Code snippets: wrap the block in `apps/api/src` with `// lab:snippet <lab>/<id>` … `// lab:end`.
+  `scripts/extract-snippets.mts` (`npm run snippets`, also run by every recorder) copies it to
+  `recordings/<lab>/snippets.json` with file, line numbers and commit. The page never shows code
+  typed by hand. Keep snippets 3–12 lines; pick the lines to highlight per step in `content.ts`
+  (`STEP_CODE`), so the same snippet can tell different steps different things.
 - `scripts/record-<lab>.mts` uses the **same `run.ts`** as Live mode → the recording is exactly what
   Live sends. It stores `meta` (date, commit, dirty, node, cpu), `initial` DB state and every step.
 - Re-record after committing so the pill shows a clean commit.
@@ -68,9 +77,17 @@ dbPanels(now, before) ──▶ tables on DB nodes; switch to `after` on the com
 
 - Tokens only (`apps/web/src/styles.css`): light, minimal, frosted glass; dark mode via the same tokens.
 - Tones: ok = green (201), replay = amber (200), error = red (4xx/5xx), info = blue, neutral = grey.
-- 3D (`IsoStage`): dimetric floor, server = rack block, DB = cylinder, client = device block, packets =
-  balls with shadows; text stays flat. Use `labelSide: 'left' | 'right'` in the scene to keep labels
-  from overlapping; DB columns need ~170+ units between nodes.
+- 3D (`IsoStage`): dimetric floor, server = rack block, client = device block, packets = balls with
+  shadows; text stays flat. Use `labelSide: 'top' | 'bottom' | 'left' | 'right'` in the scene to keep
+  labels from overlapping; DB columns need ~170+ units between nodes.
+- **Shapes mean what they are** (people read two cylinders as two database servers / a replica):
+  - `db` (cylinder) = **one database server**. One per server, never one per table or index.
+  - `index` (B-tree on a plinth) = an index inside a table.
+  - `rows` (stacked slabs) = a table's rows (InnoDB: the clustered PRIMARY index).
+  - Things that live in one table / one file go in one **group** box that says so
+    (Lab 02: `table orders_archive · one .ibd file`).
+  - Something that doesn't exist yet (an index before CREATE INDEX) gets `absent: true` on its
+    panel: drawn as a dashed outline, so the viewer sees where it will appear.
 - Phones: stage keeps ≥640 px and scrolls sideways instead of shrinking.
 
 ## Adding a lab — checklist
@@ -84,15 +101,20 @@ dbPanels(now, before) ──▶ tables on DB nodes; switch to `after` on the com
    - `scene.ts` — nodes (`kind`, `x/y`, `labelSide`), links, groups
    - `run.ts` — reset, step runner, `dbSnapshot`, `sameDb` (plain TS: Node runs it)
    - `adapter.ts` — span → hop/tag mapping, `dbPanels`, bilingual tags
-   - `content.ts` + `ui-text.tsx` — EN/MY words
-   - `<Topic>Report.tsx` — start by copying `InventoryReport.tsx`
+   - `content.ts` + `ui-text.tsx` — EN/MY words (shared words are in `stage/common-text.tsx`)
+   - `STEP_CODE` in `content.ts` (snippet ids + highlight strings) and a `codeNote` per step in
+     `ui-text.tsx` (numbers passed in from the run); the markers go in the API code (step 1)
+   - `<Topic>Report.tsx` — `useLabRunner(...)` + `<LabReportLayout>`; only verdict chips, the cards
+     and an optional playground are lab code (see `labs/indexes/IndexesReport.tsx`, ~150 lines)
+   - the lab's DB snapshot type `S` and `same(a, b)` (which fields the guard compares)
 3. **Recorder**: `scripts/record-<topic>.mts` + `npm run record:<topic>`; record a real run into
    `apps/web/src/recordings/<topic>/`.
 4. Route + home list entry; links in the lab README.
 5. Check: typecheck, unit + e2e tests, Live end-to-end (Reset → steps → guard), desktop / dark / 390 px.
 
-When lab 02 is built, move what both reports share (Segmented, API status hook, live-session guard,
-page shell) from `InventoryReport.tsx` into `apps/web/src/stage/` instead of copying it a third time.
+Verdicts don't have to be status codes: a step's `expect` is whatever the theory predicts
+(Lab 01: HTTP statuses; Lab 02: EXPLAIN `type`, "slower than step 2"); the lab's `verdictOf`
+turns it into Theory → Got chips and ✓ / differs.
 
 ## Engine files (lab-agnostic)
 
@@ -104,5 +126,11 @@ page shell) from `InventoryReport.tsx` into `apps/web/src/stage/` instead of cop
 | `stage/motion.ts` | moves packets along SVG paths |
 | `stage/Stage.tsx` / `IsoStage.tsx` | 2D / 3D views, same props |
 | `stage/Waterfall.tsx` | real timings |
+| `stage/useLabRunner.ts` | Recorded ↔ Live, steps, Reset / Send / Run all, playground requests, tables flip at COMMIT |
+| `stage/useLiveSession.ts` | the DB guard (reset first, in order, DB checked before each step) |
+| `stage/LabReportLayout.tsx` | the page: hero, toolbar, stage, step bar, live status, callout, code, timings |
+| `stage/CodePanel.tsx` | "The code behind this step": real snippets, key lines, note, what the run sent |
+| `scripts/extract-snippets.mts` | `// lab:snippet` markers → `recordings/<lab>/snippets.json` |
+| `stage/ui.tsx`, `stage/common-text.tsx` | toggles, chips, API status, remembered choices; shared EN/MY words |
 | `stage/stage.css`, `iso.css`, `report.css` | engine + layout styles |
 | `apps/api/src/common/lab-trace/` | `labTrace` + `LabTraceInterceptor` |
