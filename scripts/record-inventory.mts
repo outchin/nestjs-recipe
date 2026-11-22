@@ -52,7 +52,7 @@ const recording: Recording = {
     recordedAt: new Date().toISOString(),
     commit: git('rev-parse --short HEAD'),
     // only code that shapes the run counts (not unrelated notes or editor files)
-    dirty: git('status --porcelain -- apps scripts package.json') !== '',
+    dirty: git("status --porcelain -- apps scripts package.json ':!apps/web/src/recordings'") !== '',
     node: process.version,
     dbDriver,
     platform: `${os.platform()} ${os.arch()}`,

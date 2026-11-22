@@ -41,10 +41,14 @@ export const UI: Record<Lang, LabText> = {
       buy: (d) => <>A new key: the lookup finds nothing{d.hit === false && <span className="mono"> (hit: false)</span>}, so the purchase goes on: stock check, UPDATE, INSERT.</>,
       retry: (d) => <>Same key: the lookup finds order{d.orderId ? <b> #{d.orderId}</b> : ''} and this line returns it as <b>200</b>. No stock check, no new row.</>,
       bob: (d) => <>Bob's key is new, so he gets past the lookup. Stock is <b>{d.stock ?? '…'}</b>, the check fails and Nest turns the ConflictException into <b>409</b>.</>,
-      double: (d) => (
-        <>Both taps run the lookup at the same moment and both miss. Both INSERT; the UNIQUE index rejects the second
-          {d.error && <> (<code>{d.error}</code>)</>}. Nothing catches that error, so the client gets <b>{d.statuses?.join(' + ') ?? '…'}</b>.
+      // the race depends on timing: describe what this run actually did
+      double: (d) => d.error ? (
+        <>Both taps ran the lookup at the same moment and both missed. Both INSERT; the UNIQUE index rejects the second
+          (<code>{d.error}</code>). Nothing catches that error, so the client gets <b>{d.statuses?.join(' + ')}</b>.
           The fix: catch the duplicate key and return the first order (200).</>
+      ) : (
+        <>This time the second tap's lookup already saw the first order, so it got <b>{d.statuses?.join(' + ') ?? '…'}</b>.
+          When both taps overlap, both miss the lookup, the UNIQUE index rejects one INSERT and, uncaught, it becomes 500.</>
       ),
     },
   },
@@ -61,10 +65,13 @@ export const UI: Record<Lang, LabText> = {
       buy: (d) => <>Key အသစ်မို့ lookup က ဘာမှ မတွေ့ဘူး{d.hit === false && <span className="mono"> (hit: false)</span>}။ ဒါကြောင့် ဝယ်တာ ဆက်သွားတယ်: stock စစ်၊ UPDATE၊ INSERT။</>,
       retry: (d) => <>Key တူတော့ lookup က order{d.orderId ? <b> #{d.orderId}</b> : ''} ကို တွေ့ပြီး ဒီ line က အဲဒါကို <b>200</b> နဲ့ ပြန်ပေးတယ်။ Stock မစစ်ဘူး၊ row အသစ် မဖြစ်ဘူး။</>,
       bob: (d) => <>Bob ရဲ့ key က အသစ်မို့ lookup ကို ကျော်သွားတယ်။ Stock က <b>{d.stock ?? '…'}</b> ဖြစ်နေတော့ စစ်တာ မအောင်ဘဲ ConflictException ကို Nest က <b>409</b> အဖြစ် ပြောင်းပေးတယ်။</>,
-      double: (d) => (
+      double: (d) => d.error ? (
         <>နှိပ်တာ နှစ်ခုလုံး တစ်ပြိုင်နက် lookup လုပ်တော့ နှစ်ခုလုံး မတွေ့ဘူး။ နှစ်ခုလုံး INSERT လုပ်တော့ UNIQUE index က ဒုတိယတစ်ခုကို ငြင်းတယ်
-          {d.error && <> (<code>{d.error}</code>)</>}။ အဲဒီ error ကို ဘယ်သူမှ မဖမ်းထားလို့ client က <b>{d.statuses?.join(' + ') ?? '…'}</b> ရတယ်။
+          (<code>{d.error}</code>)။ အဲဒီ error ကို ဘယ်သူမှ မဖမ်းထားလို့ client က <b>{d.statuses?.join(' + ')}</b> ရတယ်။
           ပြင်နည်း: duplicate key ကို ဖမ်းပြီး ပထမ order ကို ပြန်ပေး (200)။</>
+      ) : (
+        <>ဒီတစ်ခါ ဒုတိယ tap ရဲ့ lookup က ပထမ order ကို တွေ့ပြီးသားမို့ <b>{d.statuses?.join(' + ') ?? '…'}</b> ရတယ်။
+          နှိပ်တာ နှစ်ခု ထပ်နေရင်တော့ နှစ်ခုလုံး lookup မတွေ့၊ UNIQUE index က INSERT တစ်ခုကို ငြင်းပြီး မဖမ်းထားလို့ 500 ဖြစ်တယ်။</>
       ),
     },
   },
