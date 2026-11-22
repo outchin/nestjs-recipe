@@ -1,9 +1,9 @@
 {
   "meta": {
-    "extractedAt": "2026-11-21T18:51:10.859Z",
-    "commit": "04ee224",
-    "commitFull": "04ee2245054ee2e57f2ebe810c93fd0bc24a2d81",
-    "dirty": true,
+    "extractedAt": "2026-11-22T04:30:14.186Z",
+    "commit": "955e07c",
+    "commitFull": "955e07c95e3a6d32112b9459e7af9ba68c472982",
+    "dirty": false,
     "repo": "https://github.com/outchin/nestjs-recipe"
   },
   "snippets": {

@@ -1,9 +1,9 @@
 {
   "meta": {
     "scenario": "scan-vs-seek",
-    "recordedAt": "2026-11-20T19:32:15.579Z",
-    "commit": "04ee224",
-    "dirty": true,
+    "recordedAt": "2026-11-22T04:30:13.559Z",
+    "commit": "955e07c",
+    "dirty": false,
     "node": "v22.23.1",
     "dbDriver": "mysql",
     "platform": "darwin arm64",
@@ -12,7 +12,7 @@
   "initial": {
     "rows": 1000000,
     "indexes": [],
-    "dataMB": 69.61,
+    "dataMB": 67.61,
     "indexMB": 0
   },
   "runs": [
@@ -35,7 +35,7 @@
             "explain": {
               "type": "ALL",
               "key": null,
-              "rows": 982036,
+              "rows": 996732,
               "extra": "Using where"
             },
             "rowsReturned": 10,
@@ -50,34 +50,34 @@
               "rnd_next": 1000001
             },
             "runsMs": [
-              821.49,
-              378.46,
-              286.72,
-              300.36,
-              559.09
+              272.03,
+              277.16,
+              244.67,
+              246.51,
+              246.3
             ],
-            "medianMs": 378.46
+            "medianMs": 246.51
           },
-          "clientMs": 2423.55,
-          "startedAt": 0.22,
+          "clientMs": 1308.95,
+          "startedAt": 0.11,
           "trace": {
-            "totalMs": 2406.56,
+            "totalMs": 1303.14,
             "spans": [
               {
                 "name": "db.explain",
-                "at": 17.18,
-                "ms": 11.12,
+                "at": 2.19,
+                "ms": 1.58,
                 "depth": 0,
                 "detail": {
                   "type": "ALL",
                   "key": null,
-                  "rows": 982036
+                  "rows": 996732
                 }
               },
               {
                 "name": "db.select",
-                "at": 44.06,
-                "ms": 821.63,
+                "at": 14.73,
+                "ms": 272.06,
                 "depth": 0,
                 "detail": {
                   "kind": "equals",
@@ -88,7 +88,7 @@
               },
               {
                 "name": "db.rows.read",
-                "at": 881.03,
+                "at": 288.42,
                 "ms": 0,
                 "depth": 0,
                 "detail": {
@@ -99,8 +99,8 @@
               },
               {
                 "name": "db.select.repeat",
-                "at": 881.05,
-                "ms": 1525.02,
+                "at": 288.42,
+                "ms": 1014.66,
                 "depth": 0,
                 "detail": {
                   "runs": 4
@@ -113,7 +113,7 @@
       "after": {
         "rows": 1000000,
         "indexes": [],
-        "dataMB": 69.61,
+        "dataMB": 67.61,
         "indexMB": 0
       }
     },
@@ -131,19 +131,19 @@
           "status": 200,
           "response": {
             "rows": 20000,
-            "ms": 233.27,
-            "rowsPerSec": 85738,
+            "ms": 191.99,
+            "rowsPerSec": 104172,
             "indexes": []
           },
-          "clientMs": 242.23,
-          "startedAt": 2538.32,
+          "clientMs": 198.43,
+          "startedAt": 1372.72,
           "trace": {
-            "totalMs": 237.57,
+            "totalMs": 194.25,
             "spans": [
               {
                 "name": "db.insert",
-                "at": 4.25,
-                "ms": 233.24,
+                "at": 2.19,
+                "ms": 191.98,
                 "depth": 0,
                 "detail": {
                   "rows": 20000,
@@ -157,7 +157,7 @@
       "after": {
         "rows": 1020000,
         "indexes": [],
-        "dataMB": 69.61,
+        "dataMB": 67.61,
         "indexMB": 0
       }
     },
@@ -171,7 +171,8 @@
           "path": "/api/indexes/index",
           "status": 200,
           "response": {
-            "ms": 4534.9,
+            "ms": 2689.77,
+            "sql": "CREATE INDEX idx_email ON orders_archive (customer_email)",
             "state": {
               "rows": 1020000,
               "indexes": [
@@ -181,15 +182,15 @@
               "indexMB": 37.59
             }
           },
-          "clientMs": 4901.15,
-          "startedAt": 2864.27,
+          "clientMs": 2942.96,
+          "startedAt": 1615.59,
           "trace": {
-            "totalMs": 4881.06,
+            "totalMs": 2938.15,
             "spans": [
               {
                 "name": "db.index.create",
-                "at": 1.8,
-                "ms": 4534.88,
+                "at": 0.8,
+                "ms": 2689.74,
                 "depth": 0,
                 "detail": {
                   "index": "idx_email"
@@ -242,23 +243,23 @@
               "rnd_next": 0
             },
             "runsMs": [
-              1.67,
-              1.24,
-              1.08,
+              0.94,
               0.76,
-              0.85
+              0.72,
+              0.72,
+              0.65
             ],
-            "medianMs": 1.08
+            "medianMs": 0.72
           },
-          "clientMs": 35.02,
-          "startedAt": 7901.46,
+          "clientMs": 15.36,
+          "startedAt": 4671.12,
           "trace": {
-            "totalMs": 28.82,
+            "totalMs": 9.52,
             "spans": [
               {
                 "name": "db.explain",
-                "at": 12.46,
-                "ms": 3.61,
+                "at": 1.45,
+                "ms": 1.1,
                 "depth": 0,
                 "detail": {
                   "type": "ref",
@@ -268,8 +269,8 @@
               },
               {
                 "name": "db.select",
-                "at": 21.92,
-                "ms": 1.68,
+                "at": 4.71,
+                "ms": 0.95,
                 "depth": 0,
                 "detail": {
                   "kind": "equals",
@@ -280,7 +281,7 @@
               },
               {
                 "name": "db.rows.read",
-                "at": 24.81,
+                "at": 6.63,
                 "ms": 0,
                 "depth": 0,
                 "detail": {
@@ -291,8 +292,8 @@
               },
               {
                 "name": "db.select.repeat",
-                "at": 24.81,
-                "ms": 3.94,
+                "at": 6.63,
+                "ms": 2.85,
                 "depth": 0,
                 "detail": {
                   "runs": 4
@@ -330,7 +331,7 @@
             "explain": {
               "type": "ALL",
               "key": null,
-              "rows": 1017425,
+              "rows": 1017212,
               "extra": "Using where"
             },
             "rowsReturned": 10,
@@ -345,34 +346,34 @@
               "rnd_next": 1020001
             },
             "runsMs": [
-              474.73,
-              584.85,
-              582.18,
-              362.83,
-              324.56
+              430.22,
+              340.12,
+              336.17,
+              372.34,
+              345.98
             ],
-            "medianMs": 474.73
+            "medianMs": 345.98
           },
-          "clientMs": 2357.13,
-          "startedAt": 8056.84,
+          "clientMs": 1837.23,
+          "startedAt": 4789.69,
           "trace": {
-            "totalMs": 2345.75,
+            "totalMs": 1833.72,
             "spans": [
               {
                 "name": "db.explain",
-                "at": 1.65,
-                "ms": 2.37,
+                "at": 2.41,
+                "ms": 1.79,
                 "depth": 0,
                 "detail": {
                   "type": "ALL",
                   "key": null,
-                  "rows": 1017425
+                  "rows": 1017212
                 }
               },
               {
                 "name": "db.select",
-                "at": 5.38,
-                "ms": 475.08,
+                "at": 5.32,
+                "ms": 430.25,
                 "depth": 0,
                 "detail": {
                   "kind": "lower",
@@ -383,7 +384,7 @@
               },
               {
                 "name": "db.rows.read",
-                "at": 490.88,
+                "at": 438.83,
                 "ms": 0,
                 "depth": 0,
                 "detail": {
@@ -394,8 +395,8 @@
               },
               {
                 "name": "db.select.repeat",
-                "at": 490.89,
-                "ms": 1854.5,
+                "at": 438.84,
+                "ms": 1394.65,
                 "depth": 0,
                 "detail": {
                   "runs": 4
@@ -428,21 +429,21 @@
           "status": 200,
           "response": {
             "rows": 20000,
-            "ms": 272.81,
-            "rowsPerSec": 73311,
+            "ms": 336.63,
+            "rowsPerSec": 59412,
             "indexes": [
               "idx_email"
             ]
           },
-          "clientMs": 279.62,
-          "startedAt": 10583.1,
+          "clientMs": 343.21,
+          "startedAt": 6789.74,
           "trace": {
-            "totalMs": 276.14,
+            "totalMs": 339.64,
             "spans": [
               {
                 "name": "db.insert",
-                "at": 3.28,
-                "ms": 272.8,
+                "at": 2.97,
+                "ms": 336.61,
                 "depth": 0,
                 "detail": {
                   "rows": 20000,
