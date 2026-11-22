@@ -1,0 +1,12 @@
+{
+  "id": "scan-vs-seek",
+  "title": "One customer's orders in 1M rows: scan, index, seek, gotcha, write cost",
+  "steps": [
+    { "id": "scan", "action": "query", "kind": "equals", "email": "user4242@shop.test", "expect": { "type": "ALL" } },
+    { "id": "write-base", "action": "insert", "count": 20000, "expect": {} },
+    { "id": "create", "action": "index", "expect": { "index": "idx_email" } },
+    { "id": "seek", "action": "query", "kind": "equals", "email": "user4242@shop.test", "expect": { "type": "ref" } },
+    { "id": "gotcha", "action": "query", "kind": "lower", "email": "user4242@shop.test", "expect": { "type": "ALL" } },
+    { "id": "write-cost", "action": "insert", "count": 20000, "expect": { "slowerThan": "write-base" } }
+  ]
+}

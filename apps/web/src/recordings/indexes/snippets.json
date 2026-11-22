@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "extractedAt": "2026-11-22T04:30:14.186Z",
+    "commit": "955e07c",
+    "commitFull": "955e07c95e3a6d32112b9459e7af9ba68c472982",
+    "dirty": false,
+    "repo": "https://github.com/outchin/nestjs-recipe"
+  },
+  "snippets": {
+    "query": {
+      "file": "apps/api/src/modules/indexes/indexes.service.ts",
+      "start": 60,
+      "end": 64,
+      "code": "const QUERY: Record<QueryKind, string> = {\n  equals: `SELECT id, customer_email, status, total FROM ${TABLE} WHERE customer_email = ?`,\n  // a function on the column: the B-tree is sorted by customer_email, not by LOWER(customer_email)\n  lower: `SELECT id, customer_email, status, total FROM ${TABLE} WHERE LOWER(customer_email) = ?`,\n};"
+    },
+    "create-index": {
+      "file": "apps/api/src/modules/indexes/indexes.service.ts",
+      "start": 211,
+      "end": 213,
+      "code": "const sql = `CREATE INDEX ${INDEX} ON ${TABLE} (customer_email)`;\nconst t0 = performance.now();\nawait labTrace.span('db.index.create', () => qr.query(sql), () => ({ index: INDEX }));"
+    },
+    "insert": {
+      "file": "apps/api/src/modules/indexes/indexes.service.ts",
+      "start": 227,
+      "end": 237,
+      "code": "await labTrace.span(\n  'db.insert',\n  () =>\n    qr.query(\n      `INSERT INTO ${TABLE} (customer_email, status, total, created_at)\n       SELECT CONCAT('new', n % ${CUSTOMERS}, '@shop.test'), 'PAID', 9.99, NOW()\n       FROM ${numbers(5)} t WHERE n < ?`,\n      [count],\n    ),\n  () => ({ rows: count, indexes: indexes.length }),\n);"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { call } from '../api';
+import type { RequestRecord } from '../stage/types';
 
 interface Product { id: number; sku: string; name: string; price: string; stock: number; version: number }
 interface Order { id: number; status: string; totalAmount: string; idempotencyKey: string | null; items: { productId: number; quantity: number }[] }
@@ -25,7 +26,9 @@ const saveKeys = (keys: Record<string, string>) => {
 };
 const slot = (userId: number, productId: number) => `${userId}:${productId}`;
 
-export function InventoryLab() {
+/** onRecord: called with every Buy request (status, timing, server trace), e.g. to animate it on a stage. */
+/** refreshKey: bump it when someone else changed the DB (e.g. the scenario ran) to re-read the tables. */
+export function InventoryLab({ onRecord, refreshKey = 0 }: { onRecord?: (r: RequestRecord) => void; refreshKey?: number } = {}) {
   const [userId, setUserId] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -51,7 +54,7 @@ export function InventoryLab() {
     }
   }, [userId]);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => { refresh(); }, [refresh, refreshKey]);
 
   const setKey = (s: string, key: string | undefined) =>
     setKeys((prev) => {
@@ -80,8 +83,12 @@ export function InventoryLab() {
     setKey(s, key);
     setBusy((b) => ({ ...b, [s]: true }));
     try {
-      const r = await call('POST', '/inventory/orders', { productId: product.id, quantity: 1, idempotencyKey: key },
-        { 'X-User-Id': String(userId) });
+      const reqBody = { productId: product.id, quantity: 1, idempotencyKey: key };
+      const r = await call('POST', '/inventory/orders', reqBody, { 'X-User-Id': String(userId) });
+      onRecord?.({
+        actor: userName.toLowerCase(), userId, method: 'POST', path: '/api/inventory/orders', body: reqBody,
+        status: r.status, response: r.data, clientMs: r.ms, startedAt: 0, trace: r.trace,
+      });
       const body = r.data as Order & { message?: string | string[]; available?: number };
       const [text, tone]: [string, Tone] =
         r.status === 201 ? [`Order #${body.id} created — ${product.name} bought`, 'ok']
@@ -98,8 +105,8 @@ export function InventoryLab() {
   }
 
   return (
-    <section>
-      <h2>Try it — inventory store</h2>
+    <section className="playground">
+      <h3>Try it — inventory store</h3>
       <p className="lead">
         First <b>Buy</b> creates an order (<span className="tone-ok mono">201</span>). Clicking <b>Buy</b> again re-sends
         the same idempotency key → the server returns the same order (<span className="tone-replay mono">200</span>) and

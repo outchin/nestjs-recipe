@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './modules/health/health.module';
+import { IndexesModule } from './modules/indexes/indexes.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 
 /**
@@ -14,6 +15,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
     DatabaseModule.forRoot(), // driver from DB_DRIVER (default: memory)
     HealthModule,
     InventoryModule,
+    IndexesModule,
     // labs go here
   ],
 })

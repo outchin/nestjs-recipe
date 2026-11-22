@@ -6,7 +6,7 @@ async function bootstrap() {
 
   // Every lab endpoint lives under /api so the web app can proxy one prefix.
   app.setGlobalPrefix('api');
-  app.enableCors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' });
+  app.enableCors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173', exposedHeaders: ['X-Lab-Trace'] });
 
   // Global cross-cutting pieces (filters, pipes, interceptors) get registered
   // here once the corresponding labs exist — see docs/ARCHITECTURE.md.

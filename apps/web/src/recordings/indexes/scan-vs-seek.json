@@ -1,0 +1,467 @@
+{
+  "meta": {
+    "scenario": "scan-vs-seek",
+    "recordedAt": "2026-11-22T04:30:13.559Z",
+    "commit": "955e07c",
+    "dirty": false,
+    "node": "v22.23.1",
+    "dbDriver": "mysql",
+    "platform": "darwin arm64",
+    "cpu": "Apple M1"
+  },
+  "initial": {
+    "rows": 1000000,
+    "indexes": [],
+    "dataMB": 67.61,
+    "indexMB": 0
+  },
+  "runs": [
+    {
+      "stepId": "scan",
+      "requests": [
+        {
+          "actor": "you",
+          "userId": 0,
+          "method": "POST",
+          "path": "/api/indexes/query",
+          "body": {
+            "kind": "equals",
+            "email": "user4242@shop.test"
+          },
+          "status": 200,
+          "response": {
+            "kind": "equals",
+            "sql": "SELECT id, customer_email, status, total FROM orders_archive WHERE customer_email = ?",
+            "explain": {
+              "type": "ALL",
+              "key": null,
+              "rows": 996732,
+              "extra": "Using where"
+            },
+            "rowsReturned": 10,
+            "rowsRead": 1000003,
+            "handler": {
+              "first": 1,
+              "key": 1,
+              "last": 0,
+              "next": 0,
+              "prev": 0,
+              "rnd": 0,
+              "rnd_next": 1000001
+            },
+            "runsMs": [
+              272.03,
+              277.16,
+              244.67,
+              246.51,
+              246.3
+            ],
+            "medianMs": 246.51
+          },
+          "clientMs": 1308.95,
+          "startedAt": 0.11,
+          "trace": {
+            "totalMs": 1303.14,
+            "spans": [
+              {
+                "name": "db.explain",
+                "at": 2.19,
+                "ms": 1.58,
+                "depth": 0,
+                "detail": {
+                  "type": "ALL",
+                  "key": null,
+                  "rows": 996732
+                }
+              },
+              {
+                "name": "db.select",
+                "at": 14.73,
+                "ms": 272.06,
+                "depth": 0,
+                "detail": {
+                  "kind": "equals",
+                  "type": "ALL",
+                  "key": null,
+                  "rowsReturned": 10
+                }
+              },
+              {
+                "name": "db.rows.read",
+                "at": 288.42,
+                "ms": 0,
+                "depth": 0,
+                "detail": {
+                  "rowsRead": 1000003,
+                  "rowsReturned": 10,
+                  "type": "ALL"
+                }
+              },
+              {
+                "name": "db.select.repeat",
+                "at": 288.42,
+                "ms": 1014.66,
+                "depth": 0,
+                "detail": {
+                  "runs": 4
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "after": {
+        "rows": 1000000,
+        "indexes": [],
+        "dataMB": 67.61,
+        "indexMB": 0
+      }
+    },
+    {
+      "stepId": "write-base",
+      "requests": [
+        {
+          "actor": "you",
+          "userId": 0,
+          "method": "POST",
+          "path": "/api/indexes/insert",
+          "body": {
+            "count": 20000
+          },
+          "status": 200,
+          "response": {
+            "rows": 20000,
+            "ms": 191.99,
+            "rowsPerSec": 104172,
+            "indexes": []
+          },
+          "clientMs": 198.43,
+          "startedAt": 1372.72,
+          "trace": {
+            "totalMs": 194.25,
+            "spans": [
+              {
+                "name": "db.insert",
+                "at": 2.19,
+                "ms": 191.98,
+                "depth": 0,
+                "detail": {
+                  "rows": 20000,
+                  "indexes": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "after": {
+        "rows": 1020000,
+        "indexes": [],
+        "dataMB": 67.61,
+        "indexMB": 0
+      }
+    },
+    {
+      "stepId": "create",
+      "requests": [
+        {
+          "actor": "you",
+          "userId": 0,
+          "method": "POST",
+          "path": "/api/indexes/index",
+          "status": 200,
+          "response": {
+            "ms": 2689.77,
+            "sql": "CREATE INDEX idx_email ON orders_archive (customer_email)",
+            "state": {
+              "rows": 1020000,
+              "indexes": [
+                "idx_email"
+              ],
+              "dataMB": 68.61,
+              "indexMB": 37.59
+            }
+          },
+          "clientMs": 2942.96,
+          "startedAt": 1615.59,
+          "trace": {
+            "totalMs": 2938.15,
+            "spans": [
+              {
+                "name": "db.index.create",
+                "at": 0.8,
+                "ms": 2689.74,
+                "depth": 0,
+                "detail": {
+                  "index": "idx_email"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "after": {
+        "rows": 1020000,
+        "indexes": [
+          "idx_email"
+        ],
+        "dataMB": 68.61,
+        "indexMB": 37.59
+      }
+    },
+    {
+      "stepId": "seek",
+      "requests": [
+        {
+          "actor": "you",
+          "userId": 0,
+          "method": "POST",
+          "path": "/api/indexes/query",
+          "body": {
+            "kind": "equals",
+            "email": "user4242@shop.test"
+          },
+          "status": 200,
+          "response": {
+            "kind": "equals",
+            "sql": "SELECT id, customer_email, status, total FROM orders_archive WHERE customer_email = ?",
+            "explain": {
+              "type": "ref",
+              "key": "idx_email",
+              "rows": 10,
+              "extra": null
+            },
+            "rowsReturned": 10,
+            "rowsRead": 11,
+            "handler": {
+              "first": 0,
+              "key": 1,
+              "last": 0,
+              "next": 10,
+              "prev": 0,
+              "rnd": 0,
+              "rnd_next": 0
+            },
+            "runsMs": [
+              0.94,
+              0.76,
+              0.72,
+              0.72,
+              0.65
+            ],
+            "medianMs": 0.72
+          },
+          "clientMs": 15.36,
+          "startedAt": 4671.12,
+          "trace": {
+            "totalMs": 9.52,
+            "spans": [
+              {
+                "name": "db.explain",
+                "at": 1.45,
+                "ms": 1.1,
+                "depth": 0,
+                "detail": {
+                  "type": "ref",
+                  "key": "idx_email",
+                  "rows": 10
+                }
+              },
+              {
+                "name": "db.select",
+                "at": 4.71,
+                "ms": 0.95,
+                "depth": 0,
+                "detail": {
+                  "kind": "equals",
+                  "type": "ref",
+                  "key": "idx_email",
+                  "rowsReturned": 10
+                }
+              },
+              {
+                "name": "db.rows.read",
+                "at": 6.63,
+                "ms": 0,
+                "depth": 0,
+                "detail": {
+                  "rowsRead": 11,
+                  "rowsReturned": 10,
+                  "type": "ref"
+                }
+              },
+              {
+                "name": "db.select.repeat",
+                "at": 6.63,
+                "ms": 2.85,
+                "depth": 0,
+                "detail": {
+                  "runs": 4
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "after": {
+        "rows": 1020000,
+        "indexes": [
+          "idx_email"
+        ],
+        "dataMB": 68.61,
+        "indexMB": 37.59
+      }
+    },
+    {
+      "stepId": "gotcha",
+      "requests": [
+        {
+          "actor": "you",
+          "userId": 0,
+          "method": "POST",
+          "path": "/api/indexes/query",
+          "body": {
+            "kind": "lower",
+            "email": "user4242@shop.test"
+          },
+          "status": 200,
+          "response": {
+            "kind": "lower",
+            "sql": "SELECT id, customer_email, status, total FROM orders_archive WHERE LOWER(customer_email) = ?",
+            "explain": {
+              "type": "ALL",
+              "key": null,
+              "rows": 1017212,
+              "extra": "Using where"
+            },
+            "rowsReturned": 10,
+            "rowsRead": 1020003,
+            "handler": {
+              "first": 1,
+              "key": 1,
+              "last": 0,
+              "next": 0,
+              "prev": 0,
+              "rnd": 0,
+              "rnd_next": 1020001
+            },
+            "runsMs": [
+              430.22,
+              340.12,
+              336.17,
+              372.34,
+              345.98
+            ],
+            "medianMs": 345.98
+          },
+          "clientMs": 1837.23,
+          "startedAt": 4789.69,
+          "trace": {
+            "totalMs": 1833.72,
+            "spans": [
+              {
+                "name": "db.explain",
+                "at": 2.41,
+                "ms": 1.79,
+                "depth": 0,
+                "detail": {
+                  "type": "ALL",
+                  "key": null,
+                  "rows": 1017212
+                }
+              },
+              {
+                "name": "db.select",
+                "at": 5.32,
+                "ms": 430.25,
+                "depth": 0,
+                "detail": {
+                  "kind": "lower",
+                  "type": "ALL",
+                  "key": null,
+                  "rowsReturned": 10
+                }
+              },
+              {
+                "name": "db.rows.read",
+                "at": 438.83,
+                "ms": 0,
+                "depth": 0,
+                "detail": {
+                  "rowsRead": 1020003,
+                  "rowsReturned": 10,
+                  "type": "ALL"
+                }
+              },
+              {
+                "name": "db.select.repeat",
+                "at": 438.84,
+                "ms": 1394.65,
+                "depth": 0,
+                "detail": {
+                  "runs": 4
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "after": {
+        "rows": 1020000,
+        "indexes": [
+          "idx_email"
+        ],
+        "dataMB": 68.61,
+        "indexMB": 37.59
+      }
+    },
+    {
+      "stepId": "write-cost",
+      "requests": [
+        {
+          "actor": "you",
+          "userId": 0,
+          "method": "POST",
+          "path": "/api/indexes/insert",
+          "body": {
+            "count": 20000
+          },
+          "status": 200,
+          "response": {
+            "rows": 20000,
+            "ms": 336.63,
+            "rowsPerSec": 59412,
+            "indexes": [
+              "idx_email"
+            ]
+          },
+          "clientMs": 343.21,
+          "startedAt": 6789.74,
+          "trace": {
+            "totalMs": 339.64,
+            "spans": [
+              {
+                "name": "db.insert",
+                "at": 2.97,
+                "ms": 336.61,
+                "depth": 0,
+                "detail": {
+                  "rows": 20000,
+                  "indexes": 1
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "after": {
+        "rows": 1040000,
+        "indexes": [
+          "idx_email"
+        ],
+        "dataMB": 68.61,
+        "indexMB": 37.59
+      }
+    }
+  ]
+}

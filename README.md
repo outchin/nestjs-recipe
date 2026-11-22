@@ -22,11 +22,16 @@ and set `DB_DRIVER` in `apps/api/.env` (see `docs/DATABASE.md`).
 - `docs/ARCHITECTURE.md` — design + lab index
 - `docs/DATABASE.md` — switching databases (`DB_DRIVER`), TypeORM/Mongoose/Neo4j
 - `docs/interview-questions/`, `docs/common-errors/`, `docs/system-design/`
+- `apps/web/src/stage/` — lab visualizer engine (stage, packets, waterfall, glass theme); lab-agnostic
+- `apps/web/src/labs/<topic>/` — one lab's report: `scenario.json`, scene, adapter, copy
+- `apps/web/src/recordings/<topic>/` — real runs the page replays (`npm run record:inventory`, API + MySQL up)
+- `apps/api/src/common/lab-trace/` — `X-Lab-Trace` header: what each request did inside the server (dev only)
 
 ## Adding a lab
 1. Copy `apps/api/src/modules/health` → `modules/<topic>`, rename.
 2. Import the module in `app.module.ts`.
 3. Write the spec(s) and the README sections.
-4. Web: endpoint button → `apps/web/src/pages/HomePage.tsx`; a lab page → `pages/<Topic>Page.tsx`
-   + a `<Route>` in `App.tsx` + an entry in `labPages`. Theory images → `apps/web/src/assets/references/<topic>/`.
+4. Web: the lab page follows **[`docs/LAB-VISUALIZER.md`](docs/LAB-VISUALIZER.md)** (scenario, scene, adapter,
+   EN/MY copy, recorder) → `pages/<Topic>Page.tsx` + a `<Route>` in `App.tsx` + an entry in `labPages`.
+   Theory images → `apps/web/src/assets/references/<topic>/`.
 5. Add a row to the lab table in `docs/ARCHITECTURE.md`; link questions/errors from `docs/`.

@@ -1,0 +1,105 @@
+/* 2.5D (isometric-ish) stage. Material colours are tokens so light/dark both work. */
+.iso-stage {
+  --floor-a: #ffffff; --floor-b: #eef1f7; --floor-grid: rgb(0 0 0 / 0.05);
+  --block-top: #ffffff; --block-left: #eceff5; --block-right: #dde2ec; --block-edge: rgb(0 0 0 / 0.09);
+  --cyl-a: #f7f8fb; --cyl-b: #e4e8f0; --cyl-c: #cdd3df;
+  --server-top: #f4f8ff; --client-top: #fbf6ff;
+  --shadow-ink: rgb(30 40 70 / 0.22);
+  background: radial-gradient(120% 90% at 50% 20%, var(--glass-strong), transparent 70%), transparent;
+}
+@media (prefers-color-scheme: dark) {
+  .iso-stage {
+    --floor-a: #2a2a30; --floor-b: #1e1e23; --floor-grid: rgb(255 255 255 / 0.05);
+    --block-top: #45454d; --block-left: #34343a; --block-right: #2a2a2f; --block-edge: rgb(255 255 255 / 0.08);
+    --cyl-a: #4a4a52; --cyl-b: #36363d; --cyl-c: #26262b;
+    --server-top: #3d4656; --client-top: #463d52;
+    --shadow-ink: rgb(0 0 0 / 0.55);
+  }
+}
+
+/* floor */
+.iso-floor { fill: url(#iso-floor); stroke: var(--block-edge); }
+.iso-floor-a { stop-color: var(--floor-a); }
+.iso-floor-b { stop-color: var(--floor-b); }
+.iso-floor-shadow { fill: var(--shadow-ink); opacity: 0.55; }
+.iso-grid { stroke: var(--floor-grid); stroke-width: 1; }
+.iso-group polygon { fill: var(--accent-soft); fill-opacity: 0.45; stroke: color-mix(in srgb, var(--accent) 35%, transparent);
+  stroke-width: 1.5; stroke-dasharray: 7 6; }
+.iso-group text { font: 600 16px var(--sans); fill: var(--muted); letter-spacing: 0.02em; }
+.iso-link { stroke-width: 3; }
+.iso-link.is-active { stroke-width: 4; }
+
+/* solids */
+.iso-face { stroke: var(--block-edge); stroke-width: 1; stroke-linejoin: round; }
+.iso-top { fill: var(--block-top); }
+.iso-left { fill: var(--block-left); }
+.iso-right { fill: var(--block-right); }
+.kind-server .iso-top { fill: var(--server-top); }
+.kind-client .iso-top { fill: var(--client-top); }
+.iso-rack { stroke: var(--block-edge); stroke-width: 1.5; }
+.iso-led { fill: var(--ok-fill); opacity: 0.85; }
+.iso-cyl { fill: url(#iso-cyl); stroke: var(--block-edge); }
+.iso-cyl-a { stop-color: var(--cyl-a); }
+.iso-cyl-b { stop-color: var(--cyl-b); }
+.iso-cyl-c { stop-color: var(--cyl-c); }
+.iso-band { fill: none; stroke: var(--block-edge); stroke-width: 1.5; }
+.iso-shadow { fill: var(--shadow-ink); }
+/* B-tree pages (index) */
+.iso-tree-edge { stroke: var(--text-2); stroke-opacity: 0.45; stroke-width: 1.5; }
+.iso-tree-depth { fill: var(--block-right); }
+.iso-tree-page { fill: var(--block-top); stroke: var(--block-edge); stroke-width: 1; transition: fill 0.3s ease, stroke 0.3s ease; }
+.iso-tree-page.is-leaf { fill: color-mix(in srgb, #30b0c7 22%, var(--block-top)); }
+.iso-block.is-marked .iso-tree-page { stroke: var(--tone-fill); fill: color-mix(in srgb, var(--tone-fill) 24%, var(--block-top)); }
+/* not created yet: a dashed outline of what will be there */
+.iso-block.is-absent .iso-solid { opacity: 0.4; }
+.iso-block.is-absent .iso-face, .iso-block.is-absent .iso-tree-page { fill: transparent; stroke: var(--text-2); stroke-dasharray: 4 4; }
+.iso-block.is-absent .iso-tree-depth, .iso-block.is-absent .iso-shadow { display: none; }
+.iso-label.is-absent .iso-name { border-style: dashed; opacity: 0.75; }
+.iso-tint { fill: transparent; transition: fill 0.3s ease; pointer-events: none; }
+
+.iso-solid { transition: transform 0.35s cubic-bezier(.2, .8, .2, 1); }
+.iso-block.is-marked .iso-tint { fill: color-mix(in srgb, var(--tone-fill) 26%, transparent); }
+.iso-block.is-marked .iso-face, .iso-block.is-marked .iso-cyl { stroke: color-mix(in srgb, var(--tone-fill) 55%, transparent); }
+.iso-block.is-current .iso-solid { transform: translateY(-10px); }
+.iso-ring { fill: color-mix(in srgb, var(--tone-fill) 18%, transparent); stroke: var(--tone-fill); stroke-width: 2;
+  transform-box: fill-box; transform-origin: center; animation: iso-ring 0.9s ease-out both; }
+@keyframes iso-ring { from { transform: scale(0.7); opacity: 1; } to { transform: scale(1.25); opacity: 0.35; } }
+
+/* packets: a ball rolling on the floor */
+.iso-pkt-shadow { fill: var(--shadow-ink); }
+.iso-pkt-shine { fill: #fff; opacity: 0.7; }
+
+/* flat labels above each solid */
+.iso-label { position: absolute; display: flex; flex-direction: column; align-items: center;
+  gap: 4px; pointer-events: none; transition: transform 0.35s cubic-bezier(.2, .8, .2, 1); max-width: 30cqw; }
+.iso-label.side-top { transform: translate(-50%, -100%); transform-origin: bottom center; }
+.iso-label.side-top.is-current { transform: translate(-50%, calc(-100% - 10px)) scale(1.06); z-index: 2; }
+.iso-label.side-bottom { transform: translate(-50%, 0); transform-origin: top center; }
+.iso-label.side-bottom.is-current { transform: translate(-50%, 6px) scale(1.06); z-index: 2; }
+.iso-label.side-right { transform: translate(0, -50%); align-items: flex-start; transform-origin: left center; }
+.iso-label.side-right.is-current { transform: translate(6px, -50%) scale(1.06); z-index: 2; }
+.iso-label.side-left { transform: translate(-100%, -50%); align-items: flex-end; transform-origin: right center; }
+.iso-label.side-left.is-current { transform: translate(calc(-100% - 6px), -50%) scale(1.06); z-index: 2; }
+/* beside or below the solid: name first, then the tags under it */
+.iso-label:not(.side-top) .iso-tags { order: 1; align-items: inherit; }
+.iso-name { display: inline-flex; align-items: center; gap: 6px; padding: clamp(3px, 0.5cqw, 6px) clamp(8px, 1cqw, 12px)
+  clamp(3px, 0.5cqw, 6px) clamp(3px, 0.5cqw, 6px); border-radius: 999px; background: var(--glass-strong);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--glass-edge); box-shadow: var(--shadow-sm);
+  white-space: nowrap; }
+.iso-name .stage-icon { width: clamp(18px, 2.4cqw, 28px); border-radius: 50%; }
+.iso-label.is-marked .iso-name { border-color: color-mix(in srgb, var(--tone-fill) 45%, transparent); box-shadow: 0 0 0 3px var(--tone-soft), var(--shadow-sm); }
+.iso-tags { display: flex; flex-direction: column; align-items: center; gap: 3px; max-width: 100%; }
+.iso-tags .stage-tag { max-width: 100%; }
+
+@container (max-width: 520px) {
+  .iso-tags { display: none; }
+}
+
+/* the mini table sits under the name, on a glass card */
+.iso-label .node-panel { margin: 0; padding: 4px; border-radius: 10px; background: var(--glass-strong);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--glass-edge);
+  box-shadow: var(--shadow-sm); min-width: 9.5em; }
+/* name + table: stacked above a solid, side by side beside one (keeps side labels short) */
+.iso-head { display: flex; flex-direction: column; align-items: inherit; gap: 4px; }
+.iso-label.side-left .iso-head, .iso-label.side-right .iso-head { flex-direction: row; align-items: flex-start; }
+.iso-label.side-left .iso-head { flex-direction: row-reverse; }

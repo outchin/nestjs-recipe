@@ -29,8 +29,8 @@ Key = *attempt တစ်ခု*၊ *product တစ်ခု* မဟုတ်ဘ�
 | | ဘာလုပ်လဲ | ဘယ်မှာ |
 |---|---|---|
 | Client | attempt တစ်ခု `crypto.randomUUID()`၊ retry မှာ ပြန်သုံး (`localStorage` ထဲ သိမ်း) | `apps/web/src/labs/InventoryLab.tsx` |
-| Service | ဒီ user က key သုံးပြီးသား → order ဟောင်း ပြန်ပေး၊ ဝယ်တာ ကျော် | [`inventory.service.ts#L71-L77`](inventory.service.ts#L71-L77) |
-| Controller | အသစ် → **201**, replay → **200** | [`inventory.controller.ts#L41-L42`](inventory.controller.ts#L41-L42) |
+| Service | ဒီ user က key သုံးပြီးသား → order ဟောင်း ပြန်ပေး၊ ဝယ်တာ ကျော် | [`inventory.service.ts#L78-L88`](inventory.service.ts#L78-L88) |
+| Controller | အသစ် → **201**, replay → **200** | [`inventory.controller.ts#L45-L46`](inventory.controller.ts#L45-L46) |
 | DB | `UNIQUE (user_id, idempotency_key)` — နောက်ဆုံး ကာကွယ်ချက် | [`order.entity.ts#L25`](entities/order.entity.ts#L25) |
 
 ```ts
@@ -86,7 +86,7 @@ Errors: 401 user မပါ · 400 body မှား · 404 user/product မရ�
 
 ## 3. Order flow (step 1)
 
-[`createOrder`](inventory.service.ts#L66-L117)၊ transaction တစ်ခု: user? → key မြင်ဖူးလား? → stock **read** →
+[`createOrder`](inventory.service.ts#L67-L146)၊ transaction တစ်ခု: user? → key မြင်ဖူးလား? → stock **read** →
 JS ထဲ **check** → stock အသစ် **write** → order + item insert (ဈေး snapshot)။
 
 ⚠️ Lock မပါတဲ့ read → check → write: တစ်ယောက်ဆို မှန်၊ **နှစ်ယောက် တစ်ပြိုင်နက်ဆို ပျက်** (နှစ်ယောက်လုံး `1` ဖတ်၊

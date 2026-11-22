@@ -1,0 +1,10 @@
+{
+  "id": "last-sneaker",
+  "title": "Last sneaker: buy, retry, someone else, double tap",
+  "steps": [
+    { "id": "buy", "actor": "alice", "userId": 1, "product": "SNEAKER-LTD-001", "key": "A", "expect": [201] },
+    { "id": "retry", "actor": "alice", "userId": 1, "product": "SNEAKER-LTD-001", "key": "A", "expect": [200] },
+    { "id": "bob", "actor": "bob", "userId": 2, "product": "SNEAKER-LTD-001", "key": "B", "expect": [409] },
+    { "id": "double", "actor": "alice", "userId": 1, "product": "TSHIRT-BASIC-001", "key": "C", "parallel": 2, "expect": [201, 200] }
+  ]
+}
